@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Thai Address Test</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Prompt', sans-serif;
+      background: #f7fafd;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .address-container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 32px 24px;
+      max-width: 400px;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    label {
+      font-size: 15px;
+      color: #1976d2;
+      margin-bottom: 6px;
+      font-weight: 500;
+      display: block;
+    }
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+      font-size: 16px;
+      background: #f5faff;
+      transition: border-color 0.2s;
+      margin-bottom: 4px;
+      box-sizing: border-box;
+    }
+    select:focus {
+      border-color: #1976d2;
+      outline: none;
+      background: #e3f2fd;
+    }
+    @media (max-width: 500px) {
+      .address-container {
+        padding: 16px 8px;
+        max-width: 98vw;
+      }
+      select {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="address-container">
+    <div>
+      <label for="province">จังหวัด</label>
+      <select id="province"></select>
+    </div>
+    <div>
+      <label for="district">อำเภอ</label>
+      <select id="district"></select>
+    </div>
+    <div>
+      <label for="subDistrict">ตำบล</label>
+      <select id="subDistrict"></select>
+    </div>
+  </div>
+  <script type="module">
+    import ThaiAddressSelect from './dist/src/components/ThaiAddressSelect.js';
+    import { loadData } from './dist/src/utils/filterAddress.js';
+
+    const provinceEl = document.getElementById("province");
+    const districtEl = document.getElementById("district");
+    const subDistrictEl = document.getElementById("subDistrict");
+
+    await loadData();
+
+    new ThaiAddressSelect({
+      provinceEl,
+      districtEl,
+      subDistrictEl
+    });
+  </script>
+</body>
+</html>

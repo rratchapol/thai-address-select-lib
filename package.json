@@ -1,0 +1,32 @@
+{
+  "name": "thai-address-select",
+  "version": "1.0.0",
+  "description": "Linked province → district → subdistrict dropdowns for Thailand (Vanilla JS).",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "thai",
+    "address",
+    "province",
+    "district",
+    "subdistrict",
+    "dropdown",
+    "thai-address"
+  ],
+  "author": "your-name",
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
