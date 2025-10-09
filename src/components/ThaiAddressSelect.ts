@@ -3,7 +3,8 @@ import {
   getProvinces,
   getDistricts,
   getSubDistricts,
-  ThaiAddressData
+  ThaiAddressData,
+  getzip_code
 } from "../utils/filterAddress.js";
 
 export interface ThaiAddressSelectOptions {
@@ -172,11 +173,14 @@ export class ThaiAddressSelect extends EventTarget {
   /**
    * คืนค่าปัจจุบัน
    */
-  public getValue(): ThaiAddressValue {
+  public getValue(): ThaiAddressValue & { zip_code?: string } {
     const province = this.provinceEl.value || undefined;
     const district = this.districtEl.value || undefined;
     const subDistrict = this.subDistrictEl.value || undefined;
-    return { province, district, subDistrict };
+    const zip_code = province && district && subDistrict
+      ? getzip_code(province, district, subDistrict)
+      : undefined;
+    return { province, district, subDistrict, zip_code };
   }
 
   /**
