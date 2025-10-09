@@ -69,6 +69,10 @@
       <label for="subDistrict">ตำบล</label>
       <select id="subDistrict"></select>
     </div>
+    <div>
+      <label>รหัสไปรษณีย์</label>
+      <span id="zip_code"></span>
+    </div>
   </div>
   <script type="module">
     import ThaiAddressSelect from './dist/src/components/ThaiAddressSelect.js';
@@ -77,13 +81,20 @@
     const provinceEl = document.getElementById("province");
     const districtEl = document.getElementById("district");
     const subDistrictEl = document.getElementById("subDistrict");
+    const zipCodeSpan = document.getElementById("zip_code");
+
 
     await loadData();
 
-    new ThaiAddressSelect({
+    const thaiAddress = new ThaiAddressSelect({
       provinceEl,
       districtEl,
       subDistrictEl
+    });
+
+    thaiAddress.addEventListener("selectChange", (e) => {
+      zipCodeSpan.textContent = e.detail.zip_code ?? "-";
+      console.log("ZIP CODE:", e.detail.zip_code);
     });
   </script>
 </body>
