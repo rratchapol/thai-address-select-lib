@@ -1,6 +1,6 @@
 {
   "name": "thai-address-select",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Linked province → district → subdistrict dropdowns for Thailand (Vanilla JS).",
   "main": "dist/index.js",
   "module": "dist/index.js",
