@@ -5,7 +5,6 @@ export class ThaiAddressSelect extends EventTarget {
         super();
         this.onProvinceChange = (e) => {
             const province = e.target.value || undefined;
-            // reset district & subdistrict
             this.populateDistricts(province);
             this.populateSubDistricts(undefined, undefined);
             this.dispatchEvent(new CustomEvent("provinceChange", { detail: { province } }));
@@ -31,7 +30,6 @@ export class ThaiAddressSelect extends EventTarget {
         this.provinceEl = options.provinceEl;
         this.districtEl = options.districtEl;
         this.subDistrictEl = options.subDistrictEl;
-        this.dataOverride = options.data;
         this.placeholder = {
             province: options.placeholder?.province ?? "เลือกจังหวัด",
             district: options.placeholder?.district ?? "เลือกอำเภอ/เขต",
@@ -41,22 +39,16 @@ export class ThaiAddressSelect extends EventTarget {
         this.attachListeners();
     }
     allProvinces() {
-        if (this.dataOverride)
-            return Object.keys(this.dataOverride);
         return getProvinces();
     }
     districtsFor(province) {
         if (!province)
             return [];
-        if (this.dataOverride)
-            return Object.keys(this.dataOverride[province] || {});
         return getDistricts(province);
     }
     subDistrictsFor(province, district) {
         if (!province || !district)
             return [];
-        if (this.dataOverride)
-            return this.dataOverride[province]?.[district] || [];
         return getSubDistricts(province, district);
     }
     clearSelect(el) {
@@ -77,7 +69,7 @@ export class ThaiAddressSelect extends EventTarget {
             const opt = document.createElement("option");
             opt.value = p;
             opt.text = p;
-            if (selected && selected === p)
+            if (selected !== undefined && selected === p)
                 opt.selected = true;
             this.provinceEl.appendChild(opt);
         });
@@ -91,7 +83,7 @@ export class ThaiAddressSelect extends EventTarget {
             const opt = document.createElement("option");
             opt.value = d;
             opt.text = d;
-            if (selected && selected === d)
+            if (selected !== undefined && selected === d)
                 opt.selected = true;
             this.districtEl.appendChild(opt);
         });
@@ -105,7 +97,7 @@ export class ThaiAddressSelect extends EventTarget {
             const opt = document.createElement("option");
             opt.value = s;
             opt.text = s;
-            if (selected && selected === s)
+            if (selected !== undefined && selected === s)
                 opt.selected = true;
             this.subDistrictEl.appendChild(opt);
         });
@@ -121,9 +113,6 @@ export class ThaiAddressSelect extends EventTarget {
             this.dispatchEvent(new CustomEvent("selectChange", { detail: value }));
         }
     }
-    /**
-     * คืนค่าปัจจุบัน
-     */
     getValue() {
         const province = this.provinceEl.value || undefined;
         const district = this.districtEl.value || undefined;
@@ -133,9 +122,6 @@ export class ThaiAddressSelect extends EventTarget {
             : undefined;
         return { province, district, subDistrict, zip_code };
     }
-    /**
-     * ตั้งค่าจากภายนอก (ช่วยสำหรับกรณีต้องการ set ค่า default)
-     */
     setValue(value) {
         const { province, district, subDistrict } = value || {};
         this.populateProvinces(province);
@@ -153,9 +139,6 @@ export class ThaiAddressSelect extends EventTarget {
             this.populateSubDistricts(undefined, undefined);
         }
     }
-    /**
-     * เริ่มต้น
-     */
     init(initial) {
         this.populateProvinces(initial?.province);
         if (initial?.province) {
@@ -168,12 +151,7 @@ export class ThaiAddressSelect extends EventTarget {
             this.populateDistricts(undefined);
             this.populateSubDistricts(undefined, undefined);
         }
-        // ถ้ามีค่า initial แต่ไม่มีการเลือกแรก (placeholder selected) ให้ลบ selected attribute ของ placeholder
-        // (ไม่บังคับ)
     }
-    /**
-     * ทำความสะอาด listener เมื่อต้องการ destroy
-     */
     destroy() {
         this.provinceEl.removeEventListener("change", this.onProvinceChange);
         this.districtEl.removeEventListener("change", this.onDistrictChange);

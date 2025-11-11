@@ -1,4 +1,3 @@
-export type ThaiAddressData = Record<string, Record<string, string[]>>;
 /**
  * ฟังก์ชันโหลดข้อมูลจากไฟล์ JSON
  */
@@ -21,6 +20,7 @@ export declare function getzip_code(province: string, district: string, subDistr
  */
 export declare function findProvinceByName(q: string): string[];
 declare const _default: {
+    loadData: typeof loadData;
     getProvinces: typeof getProvinces;
     getDistricts: typeof getDistricts;
     getSubDistricts: typeof getSubDistricts;

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Thai Address Select Package</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Prompt', sans-serif;
+      background: #f7fafd;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .address-container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 32px 24px;
+      max-width: 500px;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    h2 {
+      margin: 0 0 20px 0;
+      color: #1976d2;
+      text-align: center;
+    }
+    label {
+      font-size: 15px;
+      color: #1976d2;
+      margin-bottom: 6px;
+      font-weight: 500;
+      display: block;
+    }
+    select, input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #cfd8dc;
+      font-size: 16px;
+      background: #f5faff;
+      transition: border-color 0.2s;
+      margin-bottom: 4px;
+      box-sizing: border-box;
+    }
+    select:focus, input:focus {
+      border-color: #1976d2;
+      outline: none;
+      background: #e3f2fd;
+    }
+    input[readonly] {
+      background: #eceff1;
+      cursor: not-allowed;
+    }
+    .result {
+      background: #e8f5e9;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="address-container">
+    <h2>Test Thai Address Select</h2>
+    
+    <div>
+      <label for="province">จังหวัด</label>
+      <select id="province"></select>
+    </div>
+    
+    <div>
+      <label for="district">อำเภอ/เขต</label>
+      <select id="district"></select>
+    </div>
+    
+    <div>
+      <label for="subDistrict">ตำบล/แขวง</label>
+      <select id="subDistrict"></select>
+    </div>
+    
+    <div>
+      <label for="zipCode">รหัสไปรษณีย์</label>
+      <input type="text" id="zipCode" readonly>
+    </div>
+    
+    <div id="result" class="result" style="display: none;"></div>
+  </div>
+
+  <script type="module">
+    // Import from installed package
+    import { ThaiAddressSelect } from './node_modules/thai-address-select/dist/src/index.js';
+    import { loadData } from './node_modules/thai-address-select/dist/src/utils/filterAddress.js';
+
+    const provinceEl = document.getElementById("province");
+    const districtEl = document.getElementById("district");
+    const subDistrictEl = document.getElementById("subDistrict");
+    const zipCodeEl = document.getElementById("zipCode");
+    const resultEl = document.getElementById("result");
+
+    // Load data
+    console.log("Loading Thai address data...");
+    await loadData();
+    console.log("Data loaded successfully!");
+
+    // Initialize
+    const thaiAddress = new ThaiAddressSelect({
+      provinceEl,
+      districtEl,
+      subDistrictEl,
+      placeholder: {
+        province: "เลือกจังหวัด",
+        district: "เลือกอำเภอ/เขต",
+        subDistrict: "เลือกตำบล/แขวง"
+      }
+    });
+
+    // Listen for changes
+    thaiAddress.addEventListener("selectChange", (e) => {
+      const { province, district, subDistrict, zip_code } = e.detail;
+      
+      // Update zip code field
+      zipCodeEl.value = zip_code || "-";
+      
+      // Show result
+      if (province && district && subDistrict && zip_code) {
+        resultEl.style.display = "block";
+        resultEl.innerHTML = `
+          <strong>ที่อยู่ที่เลือก:</strong><br>
+          ${subDistrict}, ${district}, ${province} ${zip_code}
+        `;
+      } else {
+        resultEl.style.display = "none";
+      }
+      
+      // Log to console
+      console.log("Selected:", e.detail);
+    });
+
+    console.log("Thai Address Select initialized!");
+  </script>
+</body>
+</html>

@@ -3,7 +3,6 @@ import {
   getProvinces,
   getDistricts,
   getSubDistricts,
-  ThaiAddressData,
   getzip_code
 } from "../utils/filterAddress.js";
 
@@ -11,7 +10,6 @@ export interface ThaiAddressSelectOptions {
   provinceEl: HTMLSelectElement;
   districtEl: HTMLSelectElement;
   subDistrictEl: HTMLSelectElement;
-  data?: ThaiAddressData; // optional override if user wants custom data
   placeholder?: {
     province?: string;
     district?: string;
@@ -35,7 +33,6 @@ export class ThaiAddressSelect extends EventTarget {
   private districtEl: HTMLSelectElement;
   private subDistrictEl: HTMLSelectElement;
   private placeholder: Required<ThaiAddressSelectOptions["placeholder"]>;
-  private dataOverride?: ThaiAddressData;
 
   constructor(options: ThaiAddressSelectOptions) {
     super();
@@ -46,7 +43,6 @@ export class ThaiAddressSelect extends EventTarget {
     this.provinceEl = options.provinceEl;
     this.districtEl = options.districtEl;
     this.subDistrictEl = options.subDistrictEl;
-    this.dataOverride = options.data;
 
     this.placeholder = {
       province: options.placeholder?.province ?? "เลือกจังหวัด",
@@ -59,19 +55,16 @@ export class ThaiAddressSelect extends EventTarget {
   }
 
   private allProvinces(): string[] {
-    if (this.dataOverride) return Object.keys(this.dataOverride);
     return getProvinces();
   }
 
   private districtsFor(province: string): string[] {
     if (!province) return [];
-    if (this.dataOverride) return Object.keys(this.dataOverride[province] || {});
     return getDistricts(province);
   }
 
   private subDistrictsFor(province: string, district: string): string[] {
     if (!province || !district) return [];
-    if (this.dataOverride) return this.dataOverride[province]?.[district] || [];
     return getSubDistricts(province, district);
   }
 
@@ -95,7 +88,7 @@ export class ThaiAddressSelect extends EventTarget {
       const opt = document.createElement("option");
       opt.value = p;
       opt.text = p;
-      if (selected && selected === p) opt.selected = true;
+      if (selected !== undefined && selected === p) opt.selected = true;
       this.provinceEl.appendChild(opt);
     });
   }
@@ -108,7 +101,7 @@ export class ThaiAddressSelect extends EventTarget {
       const opt = document.createElement("option");
       opt.value = d;
       opt.text = d;
-      if (selected && selected === d) opt.selected = true;
+      if (selected !== undefined && selected === d) opt.selected = true;
       this.districtEl.appendChild(opt);
     });
   }
@@ -121,7 +114,7 @@ export class ThaiAddressSelect extends EventTarget {
       const opt = document.createElement("option");
       opt.value = s;
       opt.text = s;
-      if (selected && selected === s) opt.selected = true;
+      if (selected !== undefined && selected === s) opt.selected = true;
       this.subDistrictEl.appendChild(opt);
     });
   }
@@ -134,7 +127,6 @@ export class ThaiAddressSelect extends EventTarget {
 
   private onProvinceChange = (e: Event) => {
     const province = (e.target as HTMLSelectElement).value || undefined;
-    // reset district & subdistrict
     this.populateDistricts(province);
     this.populateSubDistricts(undefined, undefined);
     this.dispatchEvent(
@@ -170,9 +162,6 @@ export class ThaiAddressSelect extends EventTarget {
     }
   }
 
-  /**
-   * คืนค่าปัจจุบัน
-   */
   public getValue(): ThaiAddressValue & { zip_code?: string } {
     const province = this.provinceEl.value || undefined;
     const district = this.districtEl.value || undefined;
@@ -183,9 +172,6 @@ export class ThaiAddressSelect extends EventTarget {
     return { province, district, subDistrict, zip_code };
   }
 
-  /**
-   * ตั้งค่าจากภายนอก (ช่วยสำหรับกรณีต้องการ set ค่า default)
-   */
   public setValue(value: ThaiAddressValue) {
     const { province, district, subDistrict } = value || {};
     this.populateProvinces(province);
@@ -202,9 +188,6 @@ export class ThaiAddressSelect extends EventTarget {
     }
   }
 
-  /**
-   * เริ่มต้น
-   */
   private init(initial?: ThaiAddressValue) {
     this.populateProvinces(initial?.province);
     if (initial?.province) {
@@ -216,14 +199,8 @@ export class ThaiAddressSelect extends EventTarget {
       this.populateDistricts(undefined);
       this.populateSubDistricts(undefined, undefined);
     }
-
-    // ถ้ามีค่า initial แต่ไม่มีการเลือกแรก (placeholder selected) ให้ลบ selected attribute ของ placeholder
-    // (ไม่บังคับ)
   }
 
-  /**
-   * ทำความสะอาด listener เมื่อต้องการ destroy
-   */
   public destroy() {
     this.provinceEl.removeEventListener("change", this.onProvinceChange);
     this.districtEl.removeEventListener("change", this.onDistrictChange);
