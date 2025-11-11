@@ -1,4 +1,4 @@
-# thai-address-select
+# thai-address-select .
 
 A lightweight, vanilla JavaScript library for creating linked province → district → subdistrict dropdowns for Thailand with automatic postal code retrieval.
 
