@@ -2,6 +2,28 @@
 
 [English](#english) | [ไทย](#thai)
 
+## Interactive documentation / เว็บเอกสารภาษาไทย
+
+The repository includes a Thai documentation website with a live playground powered by the local library source, installation instructions, JavaScript and React examples, API reference, and architecture notes.
+
+เว็บเอกสารมีเดโมเลือกที่อยู่จริง ค้นหาเอกสาร คัดลอกโค้ด และรองรับจอมือถือ ใช้ Node.js 22.12+ หรือ 24+ สำหรับเครื่องมือเว็บเอกสาร:
+
+```bash
+npm install
+npm run docs:dev
+```
+
+Open the local URL printed by Vite. To build a static website:
+
+```bash
+npm run docs:build
+npm run docs:preview
+```
+
+Deploy the contents of `docs-dist/` to a static host. Relative asset paths support hosting under a subdirectory. The library build remains `npm run build`, with output in `dist/`. The documentation does not change the library's public API.
+
+**Source-verified notes:** the checked-in dataset contains **77 provinces, 929 districts, and 7,451 subdistrict records**. `loadData()` currently resolves immediately because JSON is imported at module load. `initialValue` and `setValue()` do not emit events. Listen to individual change events to clear an old postal code when the parent selection changes. The browser examples below that import `dist/` directly are legacy examples; use a bundler to handle JSON imports and extensionless module paths, as demonstrated in the website. The package currently declares a self-dependency, so the older “zero dependencies” claim below does not describe its package metadata.
+
 ---
 
 <a name="english"></a>

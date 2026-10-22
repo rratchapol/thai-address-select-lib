@@ -1,101 +1,918 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <title>Thai Address Test</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', 'Prompt', sans-serif;
-      background: #f7fafd;
-      padding: 40px;
-      min-height: 100vh;
-    }
-    .address-container {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-      padding: 32px 24px;
-      max-width: 400px;
-      margin: 40px auto;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-    label {
-      font-size: 15px;
-      color: #1976d2;
-      margin-bottom: 6px;
-      font-weight: 500;
-      display: block;
-    }
-    select {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #cfd8dc;
-      font-size: 16px;
-      background: #f5faff;
-      transition: border-color 0.2s;
-      margin-bottom: 4px;
-      box-sizing: border-box;
-    }
-    select:focus {
-      border-color: #1976d2;
-      outline: none;
-      background: #e3f2fd;
-    }
-    @media (max-width: 500px) {
-      .address-container {
-        padding: 16px 8px;
-        max-width: 98vw;
-      }
-      select {
-        font-size: 15px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="address-container">
-    <div>
-      <label for="province">จังหวัด</label>
-      <select id="province"></select>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#7560db" />
+    <meta
+      name="description"
+      content="คู่มือ thai-address-select ไลบรารี TypeScript สำหรับ dropdown ที่อยู่ไทย พร้อมเดโม ตัวอย่าง JavaScript และ React และ API reference จากโค้ดจริง"
+    />
+    <title>Thai Address Select — เอกสารและคู่มือใช้งาน</title>
+    <link rel="icon" type="image/svg+xml" href="/docs/favicon.svg" />
+    <link rel="stylesheet" href="/docs/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
+    <svg
+      class="icon-defs"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <defs>
+        <symbol id="i-pin" viewBox="0 0 24 24">
+          <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </symbol>
+        <symbol id="i-book" viewBox="0 0 24 24">
+          <path
+            d="M12 5v15M12 5C8 2 3 4 3 4v15s5-2 9 1c4-3 9-1 9-1V4s-5-2-9 1Z"
+          />
+        </symbol>
+        <symbol id="i-box" viewBox="0 0 24 24">
+          <path d="m3 7 9-5 9 5v10l-9 5-9-5V7Zm0 0 9 5 9-5M12 12v10M7 4l10 6" />
+        </symbol>
+        <symbol id="i-code" viewBox="0 0 24 24">
+          <path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18" />
+        </symbol>
+        <symbol id="i-play" viewBox="0 0 24 24">
+          <path d="m8 4 12 8-12 8V4Z" />
+        </symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </symbol>
+        <symbol id="i-search" viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h16m-6-6 6 6-6 6" />
+        </symbol>
+        <symbol id="i-external" viewBox="0 0 24 24">
+          <path d="M14 3h7v7m0-7L10 14m0-10H4v16h16v-6" />
+        </symbol>
+        <symbol id="i-git" viewBox="0 0 24 24">
+          <path
+            d="M9 21v-4c-4 1-5-2-5-2m11 6v-4c0-1-1-2-1-2 4 0 7-2 7-6 0-2-1-3-2-4 0-1 0-2-1-3l-4 2h-4L6 2C5 3 5 4 5 5 4 6 3 7 3 9c0 4 3 6 7 6 0 0-1 1-1 2"
+          />
+        </symbol>
+        <symbol id="i-reset" viewBox="0 0 24 24">
+          <path d="M3 10a9 9 0 1 1 1 8M3 3v7h7" />
+        </symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24">
+          <rect x="8" y="8" width="12" height="13" rx="2" />
+          <path d="M16 8V3H3v13h5" />
+        </symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </symbol>
+        <symbol id="i-info" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v6m0-10v1" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div class="nav-overlay" id="nav-overlay" hidden></div>
+    <aside class="sidebar" id="sidebar" aria-label="เมนูเอกสาร">
+      <a class="brand" href="#overview" aria-label="Thai Address Select หน้าแรก"
+        ><span class="brand-mark"
+          ><svg><use href="#i-pin" /></svg></span
+        ><span
+          >thai-address<span class="brand-sub"
+            >select<span class="brand-dot">.</span></span
+          ></span
+        ></a
+      >
+      <button class="search-button" id="search-open">
+        <svg class="icon"><use href="#i-search" /></svg
+        ><span>ค้นหาเอกสาร...</span><kbd>Ctrl K</kbd>
+      </button>
+      <nav class="side-nav">
+        <p class="nav-label">GET STARTED</p>
+        <a class="active" href="#overview"
+          ><svg class="icon"><use href="#i-book" /></svg>แนะนำโปรเจค</a
+        >
+        <a href="#installation"
+          ><svg class="icon"><use href="#i-box" /></svg>การติดตั้ง</a
+        >
+        <a href="#quickstart"
+          ><svg class="icon"><use href="#i-code" /></svg>เริ่มต้นใช้งาน<span
+            class="nav-tag"
+            >Start</span
+          ></a
+        >
+        <p class="nav-label">EXPLORE</p>
+        <a href="#playground"
+          ><svg class="icon"><use href="#i-play" /></svg>ลองใช้งานจริง</a
+        >
+        <a href="#examples"
+          ><svg class="icon"><use href="#i-grid" /></svg>ตัวอย่างการใช้งาน</a
+        >
+        <a href="#api"
+          ><svg class="icon"><use href="#i-code" /></svg>API Reference</a
+        >
+        <p class="nav-label">UNDER THE HOOD</p>
+        <a href="#architecture"
+          ><svg class="icon"><use href="#i-box" /></svg>โครงสร้างโปรเจค</a
+        >
+        <a href="#faq"
+          ><svg class="icon"><use href="#i-info" /></svg>คำถามที่พบบ่อย</a
+        >
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note">
+          <span class="tiny-pin">TH</span>
+          <div>ที่อยู่ไทย เชื่อมกันง่าย ๆ<small>Built for the web.</small></div>
+        </div>
+        <a
+          href="https://github.com/rratchapol/thai-address-select-lib"
+          target="_blank"
+          rel="noreferrer"
+          ><svg class="icon"><use href="#i-git" /></svg>ดูโค้ดบน GitHub<svg
+            class="icon external"
+          >
+            <use href="#i-external" /></svg
+        ></a>
+      </div>
+    </aside>
+
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <button
+            id="menu-toggle"
+            class="icon-button mobile-menu"
+            aria-label="เปิดเมนูเอกสาร"
+            aria-expanded="false"
+            aria-controls="sidebar"
+          >
+            <svg class="icon"><use href="#i-menu" /></svg></button
+          ><span>Documentation</span><span class="slash">/</span
+          ><span id="breadcrumb-current">แนะนำโปรเจค</span>
+        </div>
+        <div class="topbar-right">
+          <span class="version" data-version>v1.0.5</span
+          ><span class="topbar-divider"></span
+          ><a
+            href="https://github.com/rratchapol/thai-address-select-lib"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub repository"
+            ><svg class="icon"><use href="#i-git" /></svg><span>GitHub</span
+            ><svg class="icon small"><use href="#i-external" /></svg
+          ></a>
+        </div>
+      </header>
+
+      <main id="main">
+        <section
+          id="overview"
+          class="hero doc-section"
+          data-title="แนะนำโปรเจค"
+          data-keywords="overview introduction typescript javascript ที่อยู่ไทย"
+        >
+          <div class="eyebrow">
+            <span></span>THAI ADDRESS SELECT
+            <span class="eyebrow-line"></span> DOCUMENTATION
+          </div>
+          <div class="hero-layout">
+            <div>
+              <h1>
+                ที่อยู่ไทยครบทุกขั้น<br /><span
+                  >เชื่อมต่อได้ในไม่กี่บรรทัด</span
+                >
+              </h1>
+              <p class="hero-description">
+                ไลบรารี TypeScript สำหรับเลือกจังหวัด อำเภอ และตำบล<br
+                  class="desktop-break"
+                />แบบเชื่อมโยง พร้อมรหัสไปรษณีย์อัตโนมัติ
+                ใช้กับฟอร์มของคุณได้เลย
+              </p>
+              <div class="hero-actions">
+                <a class="button primary" href="#quickstart"
+                  >เริ่มต้นใช้งาน<svg class="icon">
+                    <use href="#i-arrow" /></svg></a
+                ><a class="button secondary" href="#playground"
+                  ><svg class="icon"><use href="#i-play" /></svg>ลองเล่นเดโม</a
+                >
+              </div>
+            </div>
+            <div class="address-illustration" aria-hidden="true">
+              <div class="route-top">
+                <span class="route-label">A LITTLE LESS TYPING.</span
+                ><span class="postmark">TH<small>ADDRESS</small></span>
+              </div>
+              <div class="address-route">
+                <div>
+                  <span class="route-dot"></span><span>จังหวัด</span
+                  ><b>กรุงเทพมหานคร</b>
+                </div>
+                <div>
+                  <span class="route-dot"></span><span>อำเภอ / เขต</span
+                  ><b>เขตบางรัก</b>
+                </div>
+                <div>
+                  <span class="route-dot"></span><span>ตำบล / แขวง</span
+                  ><b>สีลม</b>
+                </div>
+              </div>
+              <div class="postal-route">
+                <span>ส่งต่อที่อยู่ที่ถูกต้อง</span
+                ><span class="postal-digits">1 0 5 0 0</span>
+              </div>
+            </div>
+          </div>
+          <div class="feature-strip">
+            <span><span class="ts-mark">TS</span>เขียนด้วย TypeScript</span
+            ><span
+              ><svg class="icon"><use href="#i-code" /></svg>ใช้กับ HTML select
+              เดิม</span
+            ><span
+              ><svg class="icon"><use href="#i-box" /></svg
+              >ข้อมูลที่อยู่ในแพ็กเกจ</span
+            ><span
+              ><svg class="icon"><use href="#i-git" /></svg>Open source ·
+              MIT*</span
+            >
+          </div>
+        </section>
+
+        <section
+          id="playground"
+          class="doc-section"
+          data-title="ลองใช้งานจริง"
+          data-keywords="demo playground ทดลอง จังหวัด อำเภอ ตำบล zip_code"
+        >
+          <div class="section-heading">
+            <div>
+              <div class="section-kicker">INTERACTIVE PLAYGROUND</div>
+              <h2>
+                ลองเลือกที่อยู่ดูสิ<span class="live-badge"
+                  ><span></span>Live demo</span
+                >
+              </h2>
+              <p>เลือกจังหวัด แล้วให้ dropdown ที่เหลือทำงานต่อให้คุณ</p>
+            </div>
+            <button class="text-button" id="reset-demo">
+              <svg class="icon"><use href="#i-reset" /></svg>เริ่มใหม่
+            </button>
+          </div>
+          <div class="playground">
+            <div class="demo-form">
+              <div class="demo-form-top">
+                <svg class="icon"><use href="#i-pin" /></svg
+                ><span>ที่อยู่จัดส่ง</span
+                ><span class="example-label">ตัวอย่างฟอร์ม</span>
+              </div>
+              <div class="fields">
+                <div class="field">
+                  <label for="province">จังหวัด <span>*</span></label
+                  ><select id="province" disabled>
+                    <option>กำลังเตรียมข้อมูล...</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="district">อำเภอ / เขต <span>*</span></label
+                  ><select id="district" disabled>
+                    <option>เลือกจังหวัดก่อน</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="subDistrict">ตำบล / แขวง <span>*</span></label
+                  ><select id="subDistrict" disabled>
+                    <option>เลือกอำเภอก่อน</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="zip-code"
+                    >รหัสไปรษณีย์
+                    <span class="auto-label">อัตโนมัติ</span></label
+                  ><input id="zip-code" placeholder="— — — — —" readonly />
+                </div>
+              </div>
+              <div class="demo-status" id="demo-status" role="status">
+                กำลังเตรียมเดโม...
+              </div>
+              <div class="demo-bottom">
+                <span>หรือเริ่มจากที่อยู่ตัวอย่าง</span
+                ><button id="fill-demo" class="sample-button">
+                  กรุงเทพฯ · บางรัก <span>↗</span>
+                </button>
+              </div>
+            </div>
+            <div class="output-panel">
+              <div class="output-heading">
+                <span
+                  ><span class="code-dot"></span>ค่าที่ได้จาก getValue()</span
+                ><button
+                  class="icon-button"
+                  data-copy-target="demo-output"
+                  aria-label="คัดลอกผลลัพธ์ JSON"
+                >
+                  <svg class="icon"><use href="#i-copy" /></svg>
+                </button>
+              </div>
+              <pre><code id="demo-output">{
+  "province": null,
+  "district": null,
+  "subDistrict": null,
+  "zip_code": null
+}</code></pre>
+              <div class="output-footer">
+                <span id="event-status">รอการเลือกที่อยู่</span
+                ><span>JSON</span>
+              </div>
+            </div>
+          </div>
+          <p class="caption">
+            เดโมนี้ใช้ <code>ThaiAddressSelect</code> จาก source จริง ·
+            แสดงค่าที่ยังไม่เลือกเป็น <code>null</code> เพื่อให้อ่านง่าย (API
+            คืน <code>undefined</code>)
+          </p>
+          <div class="dataset-strip">
+            <div>
+              <strong data-stat="provinces">77</strong><span>จังหวัด</span>
+            </div>
+            <div>
+              <strong data-stat="districts">929</strong><span>อำเภอ / เขต</span>
+            </div>
+            <div>
+              <strong data-stat="subdistricts">7,451</strong
+              ><span>รายการตำบล / แขวง</span>
+            </div>
+            <p>
+              นับจากไฟล์ข้อมูลใน repository นี้<br /><span
+                >ไม่ใช่การยืนยันข้อมูลเขตการปกครองล่าสุด</span
+              >
+            </p>
+          </div>
+        </section>
+
+        <section
+          id="installation"
+          class="doc-section"
+          data-title="การติดตั้ง"
+          data-keywords="install npm pnpm yarn bundler vite ติดตั้ง"
+        >
+          <div class="section-kicker">GETTING STARTED</div>
+          <h2>เพิ่มลงในโปรเจคของคุณ</h2>
+          <p>
+            ติดตั้งแพ็กเกจ แล้วนำเข้าในแอปฝั่ง browser ที่ใช้ bundler เช่น Vite
+          </p>
+          <div class="code-card install-card">
+            <div class="code-toolbar">
+              <div class="tabs" role="tablist" aria-label="ตัวจัดการแพ็กเกจ">
+                <button
+                  role="tab"
+                  id="tab-npm"
+                  aria-selected="true"
+                  aria-controls="install-panel"
+                  data-install="npm"
+                >
+                  npm</button
+                ><button
+                  role="tab"
+                  id="tab-pnpm"
+                  aria-selected="false"
+                  aria-controls="install-panel"
+                  data-install="pnpm"
+                  tabindex="-1"
+                >
+                  pnpm</button
+                ><button
+                  role="tab"
+                  id="tab-yarn"
+                  aria-selected="false"
+                  aria-controls="install-panel"
+                  data-install="yarn"
+                  tabindex="-1"
+                >
+                  yarn
+                </button>
+              </div>
+              <button class="copy-button" data-copy-target="install-code">
+                <svg class="icon"><use href="#i-copy" /></svg>คัดลอก
+              </button>
+            </div>
+            <div id="install-panel" role="tabpanel" aria-labelledby="tab-npm">
+              <pre><code id="install-code">npm install thai-address-select</code></pre>
+            </div>
+          </div>
+          <div class="callout">
+            <svg class="icon"><use href="#i-info" /></svg>
+            <div>
+              <strong>ใช้ bundler เพื่อจัดการ ES modules และ JSON</strong>
+              <p>
+                source นำเข้าฐานข้อมูล JSON โดยตรง และ entry point มี import
+                ที่ไม่ระบุนามสกุล จึงไม่ควรเปิดไฟล์ HTML ผ่าน
+                <code>file://</code> หรือ import ไฟล์ใน <code>dist</code> ตรง ๆ
+                ใน browser โดยไม่มี bundler
+              </p>
+            </div>
+          </div>
+          <details class="local-setup">
+            <summary>ต้องการรันเว็บเอกสารนี้บนเครื่อง?</summary>
+            <p>
+              ใช้ Node.js 22.12+ หรือ 24+ สำหรับเครื่องมือเว็บเอกสาร จากโฟลเดอร์
+              repository รัน:
+            </p>
+            <div class="code-card" data-snippet="local"></div>
+            <p>
+              <code>npm run docs:build</code> สร้างเว็บใน
+              <code>docs-dist/</code> และ
+              <code>npm run docs:preview</code> เปิดดูผล build ส่วน
+              <code>npm run build</code> ยังใช้ build ไลบรารีเหมือนเดิม
+            </p>
+          </details>
+        </section>
+
+        <section
+          id="quickstart"
+          class="doc-section"
+          data-title="เริ่มต้นใช้งาน"
+          data-keywords="quick start html javascript event selectChange loadData getValue destroy"
+        >
+          <div class="section-kicker">YOUR FIRST ADDRESS FORM</div>
+          <h2>จากสามช่องเลือก เป็นหนึ่งที่อยู่</h2>
+          <p>
+            ตัวอย่างนี้ใช้ JavaScript ในโปรเจคที่มี bundler
+            และอ่านค่าทุกครั้งที่ฟอร์มเปลี่ยน
+          </p>
+          <div class="step">
+            <span class="step-number">1</span>
+            <div>
+              <h3>เตรียมช่องเลือกใน HTML</h3>
+              <p>
+                ใส่ <code>id</code> ให้แต่ละช่อง และใช้
+                <code>readonly</code> กับรหัสไปรษณีย์
+              </p>
+              <div class="code-card" data-snippet="html"></div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <div>
+              <h3>สร้าง instance และเชื่อมกับฟอร์ม</h3>
+              <p>
+                นำเข้าไลบรารีใน <code>main.js</code> แล้วผูก element
+                ทั้งสามเข้าด้วยกัน
+              </p>
+              <div class="code-card" data-snippet="javascript"></div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <div>
+              <h3>รับที่อยู่พร้อมใช้ และคืนทรัพยากรเมื่อเลิกใช้</h3>
+              <p>
+                <code>selectChange</code> ส่งข้อมูลเมื่อเลือกครบสามช่อง
+                ส่วนการเปลี่ยนจังหวัดหรืออำเภอจะรีเซ็ตช่องถัดไป
+                จึงต้องอัปเดตรหัสไปรษณีย์จาก event รายช่องด้วย
+              </p>
+              <div class="code-card" data-snippet="events"></div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="examples"
+          class="doc-section"
+          data-title="ตัวอย่างการใช้งาน"
+          data-keywords="react nextjs useEffect cleanup initialValue placeholder setValue utilities findProvinceByName"
+        >
+          <div class="section-kicker">MAKE IT YOURS</div>
+          <h2>ปรับใช้กับฟอร์มของคุณ</h2>
+          <p>ตั้งค่าเริ่มต้น ปรับข้อความ หรือใช้แค่ฟังก์ชันค้นหาข้อมูลก็ได้</p>
+          <div
+            class="example-tabs tabs"
+            role="tablist"
+            aria-label="ตัวอย่างโค้ด"
+          >
+            <button
+              role="tab"
+              id="tab-customize"
+              data-example="customize"
+              aria-selected="true"
+              aria-controls="example-panel"
+            >
+              ปรับแต่งฟอร์ม</button
+            ><button
+              role="tab"
+              id="tab-react"
+              data-example="react"
+              aria-selected="false"
+              aria-controls="example-panel"
+              tabindex="-1"
+            >
+              React / Next.js</button
+            ><button
+              role="tab"
+              id="tab-utilities"
+              data-example="utilities"
+              aria-selected="false"
+              aria-controls="example-panel"
+              tabindex="-1"
+            >
+              Utility functions
+            </button>
+          </div>
+          <div
+            id="example-panel"
+            role="tabpanel"
+            aria-labelledby="tab-customize"
+          >
+            <p id="example-description"></p>
+            <div class="code-card" id="example-code-card"></div>
+          </div>
+          <div class="callout subtle">
+            <svg class="icon"><use href="#i-info" /></svg>
+            <div>
+              <strong>ตั้งค่าผ่านโค้ดแล้ว อย่าลืมอ่านค่าใหม่</strong>
+              <p>
+                <code>initialValue</code> และ <code>setValue()</code> ไม่ส่ง
+                event ให้เรียก <code>getValue()</code> เพื่ออัปเดต UI เอง
+                และใช้ชื่อให้ตรงกับ dataset เช่น <code>เขตบางรัก</code>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="api"
+          class="doc-section"
+          data-title="API Reference"
+          data-keywords="api options methods events ThaiAddressSelectOptions ThaiAddressValue getProvinces getDistricts getSubDistricts getzip_code findProvinceByName"
+        >
+          <div class="section-kicker">THE REFERENCE</div>
+          <h2>API ที่ใช้บ่อย อยู่ตรงนี้ครบ</h2>
+          <p>
+            ชื่อและพฤติกรรมอ้างอิงจาก source ใน repository เวอร์ชัน
+            <span data-version>v1.0.5</span>
+          </p>
+          <h3 class="api-subtitle">
+            Constructor <code>new ThaiAddressSelect(options)</code>
+          </h3>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Type</th>
+                  <th>การใช้งาน</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <code>provinceEl</code
+                    ><span class="required">required</span>
+                  </td>
+                  <td>HTMLSelectElement</td>
+                  <td>ช่องเลือกจังหวัด</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>districtEl</code
+                    ><span class="required">required</span>
+                  </td>
+                  <td>HTMLSelectElement</td>
+                  <td>ช่องเลือกอำเภอ / เขต</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>subDistrictEl</code
+                    ><span class="required">required</span>
+                  </td>
+                  <td>HTMLSelectElement</td>
+                  <td>ช่องเลือกตำบล / แขวง</td>
+                </tr>
+                <tr>
+                  <td><code>placeholder</code></td>
+                  <td>object · optional</td>
+                  <td>
+                    ข้อความ <code>province</code>, <code>district</code>,
+                    <code>subDistrict</code> ปรับแยกได้ ค่าเริ่มต้นคือ
+                    “เลือกจังหวัด”, “เลือกอำเภอ/เขต”, “เลือกตำบล/แขวง”
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>initialValue</code></td>
+                  <td>ThaiAddressValue · optional</td>
+                  <td>ชื่อจังหวัด อำเภอ และตำบลสำหรับค่าเริ่มต้น</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3 class="api-subtitle">Methods</h3>
+          <div class="api-method">
+            <code>getValue()</code>
+            <p>
+              คืน
+              <code>{ province?, district?, subDistrict?, zip_code? }</code>
+              เป็น string หรือ
+              <code>undefined</code> รหัสไปรษณีย์ได้เมื่อเลือกครบและพบในข้อมูล
+            </p>
+          </div>
+          <div class="api-method">
+            <code>setValue(value)</code>
+            <p>
+              เติมค่าตาม <code>ThaiAddressValue</code> โดยไม่ส่ง event ใช้
+              <code>setValue({})</code> เพื่อล้างทั้งฟอร์ม ไม่ใช่การ merge
+              ค่าเดิม
+            </p>
+          </div>
+          <div class="api-method">
+            <code>destroy()</code>
+            <p>
+              ถอด listener ของไลบรารีออกจาก select ทั้งสามช่อง ไม่ลบ DOM
+              และไม่ถอด listener ที่คุณเพิ่มเองบน instance
+            </p>
+          </div>
+          <h3 class="api-subtitle">
+            Events <span class="muted">· CustomEvent.detail</span>
+          </h3>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>ส่งเมื่อ</th>
+                  <th>detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>provinceChange</code></td>
+                  <td>ผู้ใช้เปลี่ยนจังหวัด</td>
+                  <td><code>{ province }</code></td>
+                </tr>
+                <tr>
+                  <td><code>districtChange</code></td>
+                  <td>ผู้ใช้เปลี่ยนอำเภอ</td>
+                  <td><code>{ province, district }</code></td>
+                </tr>
+                <tr>
+                  <td><code>subDistrictChange</code></td>
+                  <td>ผู้ใช้เปลี่ยนตำบล</td>
+                  <td><code>{ province, district, subDistrict }</code></td>
+                </tr>
+                <tr>
+                  <td><code>selectChange</code></td>
+                  <td>เลือกครบสามช่อง</td>
+                  <td>
+                    <code>{ province, district, subDistrict, zip_code }</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3 class="api-subtitle">Utility functions</h3>
+          <p>
+            นำเข้าจาก <code>thai-address-select</code> หรือ
+            <code>thai-address-select/utils</code> โดยไม่ต้องสร้าง dropdown
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Function</th>
+                  <th>ผลลัพธ์และพฤติกรรม</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>loadData()</code></td>
+                  <td>
+                    <code>Promise&lt;void&gt;</code> — ปัจจุบันข้อมูลโหลดผ่าน
+                    import แล้ว ฟังก์ชันนี้ resolve ทันที
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>getProvinces()</code></td>
+                  <td>
+                    <code>string[]</code> — ชื่อจังหวัดไม่ซ้ำ เรียงตามภาษาไทย
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>getDistricts(province)</code></td>
+                  <td>
+                    <code>string[]</code> — อำเภอในจังหวัด เรียงตามภาษาไทย
+                    ไม่พบคืน <code>[]</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>getSubDistricts(province, district)</code></td>
+                  <td>
+                    <code>string[]</code> — ตำบลในอำเภอ เรียงตามภาษาไทย ไม่พบคืน
+                    <code>[]</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>getzip_code(province, district, subDistrict)</code>
+                  </td>
+                  <td>
+                    <code>string | undefined</code> — ชื่อฟังก์ชันใช้ตัว
+                    <code>z</code> เล็กตาม source
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>findProvinceByName(query)</code></td>
+                  <td>
+                    <code>string[]</code> — trim
+                    แล้วค้นหาข้อความที่อยู่ในชื่อด้วย
+                    <code>includes</code> ไม่ใช่ fuzzy matching;
+                    <code>""</code> คืน
+                    <code>[]</code> แต่ช่องว่างล้วนคืนทุกจังหวัด
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="caption">
+            Types ที่ export: <code>ThaiAddressSelectOptions</code> และ
+            <code>ThaiAddressValue</code> (ตัวหลังมีเฉพาะชื่อที่อยู่สามช่อง;
+            return type ของ <code>getValue()</code> เพิ่ม <code>zip_code</code>)
+          </p>
+        </section>
+
+        <section
+          id="architecture"
+          class="doc-section"
+          data-title="โครงสร้างโปรเจค"
+          data-keywords="architecture source data dataset dependencies build tsc โครงสร้าง วิเคราะห์"
+        >
+          <div class="section-kicker">UNDER THE HOOD</div>
+          <h2>เล็กพอที่จะอ่านโค้ดตามได้</h2>
+          <p>
+            หน้าที่หลักแบ่งเป็นสามส่วน: ข้อมูล → ฟังก์ชันกรอง → ตัวควบคุม
+            dropdown
+          </p>
+          <div class="architecture-flow">
+            <div>
+              <span class="file-type">JSON</span
+              ><strong>ฐานข้อมูลที่อยู่</strong><code>thai-address.json</code>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div>
+              <span class="file-type">TS</span><strong>ค้นหาและกรอง</strong
+              ><code>filterAddress.ts</code>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div>
+              <span class="file-type">DOM</span><strong>เชื่อม dropdown</strong
+              ><code>ThaiAddressSelect.ts</code>
+            </div>
+          </div>
+          <div class="code-card" data-snippet="structure"></div>
+          <div class="analysis-notes">
+            <h3>สิ่งที่ควรรู้จากการอ่านโปรเจค</h3>
+            <ul>
+              <li>
+                <strong>ข้อมูลอยู่ใน bundle:</strong> JSON ต้นฉบับมีขนาดประมาณ
+                3.43 MB ก่อน minify และบีบอัด ไม่มีการเรียก API
+                ที่อยู่ภายนอกตอนเลือก dropdown
+              </li>
+              <li>
+                <strong>จัดการ DOM โดยตรง:</strong> ใช้ <code>document</code>,
+                <code>EventTarget</code> และ
+                <code>CustomEvent</code> จึงควรสร้าง instance หลัง mount บน
+                client
+              </li>
+              <li>
+                <strong>แยก build เว็บกับไลบรารี:</strong>
+                <code>tsc</code> สร้าง JavaScript และ declarations ใน
+                <code>dist/</code>; Vite bundle เว็บเอกสารไปที่
+                <code>docs-dist/</code>
+              </li>
+              <li>
+                <strong>ตรวจ packaging ก่อนนำไปเผยแพร่:</strong> package.json
+                ยังระบุ dependency ชื่อเดียวกับแพ็กเกจตัวเอง และชี้
+                <code>require</code> ไปไฟล์ ESM จึงไม่รับรองการใช้ผ่าน CommonJS
+                จากเว็บเอกสารนี้
+              </li>
+              <li>
+                <strong>ขอบเขตของข้อมูล:</strong>
+                จำนวนบนหน้านี้นับรายการจากไฟล์จริง ต่างจากตัวเลขเดิมใน README
+                และยังไม่มีการยืนยันแหล่งข้อมูลหรือความสดใหม่จากหน่วยงานภายนอก
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section
+          id="faq"
+          class="doc-section"
+          data-title="คำถามที่พบบ่อย"
+          data-keywords="faq troubleshooting error zip code reset ssr commonjs ปัญหา รหัสไปรษณีย์"
+        >
+          <div class="section-kicker">A FEW USEFUL ANSWERS</div>
+          <h2>ติดตรงไหน ลองเริ่มจากตรงนี้</h2>
+          <details class="faq-item">
+            <summary>เปลี่ยนจังหวัดแล้วรหัสไปรษณีย์เก่ายังแสดงอยู่?</summary>
+            <p>
+              <code>selectChange</code> จะไม่ส่งเมื่อเลือกไม่ครบ ให้ฟัง
+              <code>provinceChange</code> และ
+              <code>districtChange</code> แล้วอ่าน
+              <code>getValue().zip_code ?? ""</code> ใหม่ตามตัวอย่างเริ่มต้น
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>ทำไมเปิด index.html ตรง ๆ แล้วเดโมไม่ทำงาน?</summary>
+            <p>
+              เว็บนี้ต้องผ่าน Vite เพื่อแปลง TypeScript และ JSON ให้รัน
+              <code>npm install</code> แล้ว <code>npm run docs:dev</code> จาก
+              repository และเปิด URL ที่ terminal แสดง
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>ใช้กับ React หรือ Next.js ได้อย่างไร?</summary>
+            <p>
+              สร้าง instance ใน <code>useEffect</code> หลัง DOM พร้อม ใช้
+              dynamic import บน client และถอด listener พร้อมเรียก
+              <code>destroy()</code> ตอน unmount ตัวอย่างในแท็บ React จัดการกรณี
+              component ถูกถอดระหว่างโหลดด้วย
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>ตั้งค่าเริ่มต้นแล้วเลือกอำเภอหรือตำบลไม่ติด?</summary>
+            <p>
+              ชื่อต้องตรงกับข้อมูลและสัมพันธ์กันทั้งสามระดับ เรียก
+              <code>getDistricts(province)</code> และ
+              <code>getSubDistricts(province, district)</code> เพื่อดูชื่อจริง
+              เช่นใช้ <code>เขตบางรัก</code> แทน <code>บางรัก</code> สำหรับอำเภอ
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>ปรับหน้าตาและปิดช่องที่ยังเลือกไม่ได้อย่างไร?</summary>
+            <p>
+              ไลบรารีใช้ select ของคุณ จึงแต่งด้วย CSS ได้ตามปกติ ส่วน
+              <code>disabled</code> ต้องจัดการเองจากค่าปัจจุบัน
+              เหมือนเดโมหน้านี้ที่เปิดช่องอำเภอหลังเลือกจังหวัด
+              และเปิดช่องตำบลหลังเลือกอำเภอ
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>ข้อมูลจะอัปเดตให้อัตโนมัติไหม?</summary>
+            <p>
+              ไม่มีการ sync ข้อมูลภายนอก ข้อมูลผูกกับ JSON ในแพ็กเกจที่ติดตั้ง
+              ควรตรวจสอบความเหมาะสมและความถูกต้องสำหรับงานของคุณก่อนใช้งานจริง
+            </p>
+          </details>
+        </section>
+
+        <div class="closing-card">
+          <div>
+            <span class="section-kicker">READY WHEN YOU ARE</span>
+            <h2>ให้ฟอร์มถัดไป เลือกที่อยู่ได้ง่ายขึ้น</h2>
+            <p>เริ่มด้วยสาม select แล้วต่อยอดในแบบของคุณ</p>
+          </div>
+          <a class="button primary" href="#quickstart"
+            >สร้างฟอร์มแรก<svg class="icon"><use href="#i-arrow" /></svg
+          ></a>
+        </div>
+        <footer>
+          <a class="footer-brand" href="#overview"
+            ><svg class="icon"><use href="#i-pin" /></svg>thai-address-select</a
+          ><span>โดย rratchapol · <span data-version>v1.0.5</span></span
+          ><span>* MIT ตาม package.json · ไม่พบไฟล์ LICENSE ใน repository</span
+          ><a
+            href="https://github.com/rratchapol/thai-address-select-lib"
+            target="_blank"
+            rel="noreferrer"
+            >Source code ↗</a
+          >
+        </footer>
+      </main>
     </div>
-    <div>
-      <label for="district">อำเภอ</label>
-      <select id="district"></select>
-    </div>
-    <div>
-      <label for="subDistrict">ตำบล</label>
-      <select id="subDistrict"></select>
-    </div>
-    <div>
-      <label>รหัสไปรษณีย์</label>
-      <span id="zip_code"></span>
-    </div>
-  </div>
-  <script type="module">
-    import ThaiAddressSelect from './dist/src/components/ThaiAddressSelect.js';
-    import { loadData } from './dist/src/utils/filterAddress.js';
 
-    const provinceEl = document.getElementById("province");
-    const districtEl = document.getElementById("district");
-    const subDistrictEl = document.getElementById("subDistrict");
-    const zipCodeSpan = document.getElementById("zip_code");
-
-
-    await loadData();
-
-    const thaiAddress = new ThaiAddressSelect({
-      provinceEl,
-      districtEl,
-      subDistrictEl
-    });
-
-    thaiAddress.addEventListener("selectChange", (e) => {
-      zipCodeSpan.textContent = e.detail.zip_code ?? "-";
-      console.log("ZIP CODE:", e.detail.zip_code);
-    });
-  </script>
-</body>
+    <dialog id="search-dialog" aria-labelledby="search-title">
+      <div class="search-dialog-heading">
+        <h2 id="search-title">ค้นหาเอกสาร</h2>
+        <button id="search-close" class="icon-button" aria-label="ปิดการค้นหา">
+          ✕
+        </button>
+      </div>
+      <div class="search-input-wrap">
+        <svg class="icon"><use href="#i-search" /></svg
+        ><input
+          id="search-input"
+          type="search"
+          placeholder="ค้นหา เช่น React, setValue, ติดตั้ง"
+          autocomplete="off"
+          aria-label="คำค้นหา"
+        />
+      </div>
+      <div id="search-results" aria-live="polite"></div>
+      <p class="search-hint">
+        Tab เพื่อเลือกผลลัพธ์ · Enter เพื่อเปิด · Esc เพื่อปิด
+      </p>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script type="module" src="/docs/main.js"></script>
+  </body>
 </html>

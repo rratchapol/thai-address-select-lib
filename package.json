@@ -22,6 +22,9 @@
   ],
   "scripts": {
     "build": "tsc",
+    "docs:dev": "vite",
+    "docs:build": "vite build",
+    "docs:preview": "vite preview",
     "clean": "rm -rf dist",
     "prepare": "npm run build"
   },
@@ -38,7 +41,8 @@
   "license": "MIT",
   "devDependencies": {
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^8.3.5"
   },
   "dependencies": {
     "thai-address-select": "^1.0.2"
