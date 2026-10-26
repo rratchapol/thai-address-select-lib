@@ -1,610 +1,397 @@
 # thai-address-select
 
-[English](#english) | [ไทย](#thai)
+[![npm version](https://img.shields.io/npm/v/thai-address-select.svg)](https://www.npmjs.com/package/thai-address-select)
+[![Live demo](https://img.shields.io/badge/Live_demo-Try_it_now-7560db)](https://www.thai-address-select-lib.taotech.site/#playground)
 
-## Interactive documentation / เว็บเอกสารภาษาไทย
+Linked **Province → District → Subdistrict** dropdowns for Thai addresses, with automatic postal code lookup. Written in TypeScript and built around your own HTML `<select>` elements.
 
-The repository includes a Thai documentation website with a live playground powered by the local library source, installation instructions, JavaScript and React examples, API reference, and architecture notes.
+ไลบรารีสำหรับเลือก **จังหวัด → อำเภอ/เขต → ตำบล/แขวง** แบบเชื่อมโยง พร้อมค้นหารหัสไปรษณีย์อัตโนมัติ ใช้กับช่อง `<select>` และ CSS ของคุณได้เลย
 
-เว็บเอกสารมีเดโมเลือกที่อยู่จริง ค้นหาเอกสาร คัดลอกโค้ด และรองรับจอมือถือ ใช้ Node.js 22.12+ หรือ 24+ สำหรับเครื่องมือเว็บเอกสาร:
+**[Live demo & Documentation](https://www.thai-address-select-lib.taotech.site)** · **[npm package](https://www.npmjs.com/package/thai-address-select)** · **[GitHub](https://github.com/rratchapol/thai-address-select-lib)**
+
+## Try it before installing
+
+Open the **[interactive playground](https://www.thai-address-select-lib.taotech.site/#playground)** to select an address and see the returned JSON. No installation required.
+
+ลองเลือกที่อยู่และดูผลลัพธ์จริงบนเว็บเดโมได้ทันที พร้อมคู่มือภาษาไทย:
+
+- [เริ่มต้นใช้งาน / Quick start](https://www.thai-address-select-lib.taotech.site/#quickstart)
+- [ตัวอย่าง JavaScript, React และ utilities](https://www.thai-address-select-lib.taotech.site/#examples)
+- [API Reference](https://www.thai-address-select-lib.taotech.site/#api)
+- [โครงสร้างโปรเจค / Project architecture](https://www.thai-address-select-lib.taotech.site/#architecture)
+
+## Features
+
+- Linked dropdowns: changing a province clears the selected district and subdistrict; changing a district clears the selected subdistrict.
+- Postal code lookup when all three address fields are selected.
+- Existing HTML elements and your own styling; no component theme to override.
+- Custom placeholders, initial values, programmatic updates, and change events.
+- TypeScript declarations and standalone data utilities.
+- Bundled address data; no external address API request during selection.
+
+## Installation
 
 ```bash
+npm install thai-address-select
+```
+
+Other package managers:
+
+```bash
+pnpm add thai-address-select
+# or
+
+yarn add thai-address-select
+```
+
+Use the library in a **client-side app with a bundler such as Vite**, which handles its ESM imports and bundled JSON data. The examples below assume that setup.
+
+ตัวอย่างด้านล่างใช้กับโปรเจคที่มี bundler เช่น Vite เพื่อจัดการ JavaScript modules และ JSON ไม่ใช่การเปิด HTML ผ่าน `file://` หรืออ้างไฟล์ใน `node_modules` โดยตรง
+
+## Quick start: HTML + JavaScript
+
+### 1. Add the form elements
+
+Put the following in your application's `index.html`:
+
+```html
+<label for="province">จังหวัด</label>
+<select id="province"></select>
+
+<label for="district">อำเภอ / เขต</label>
+<select id="district"></select>
+
+<label for="subDistrict">ตำบล / แขวง</label>
+<select id="subDistrict"></select>
+
+<label for="zipCode">รหัสไปรษณีย์</label>
+<input id="zipCode" readonly />
+
+<script type="module" src="/main.js"></script>
+```
+
+### 2. Connect the dropdowns
+
+Create `main.js`:
+
+```javascript
+import { ThaiAddressSelect, loadData } from "thai-address-select";
+
+await loadData();
+
+const provinceEl = document.getElementById("province");
+const districtEl = document.getElementById("district");
+const subDistrictEl = document.getElementById("subDistrict");
+const zipCodeEl = document.getElementById("zipCode");
+
+const address = new ThaiAddressSelect({
+  provinceEl,
+  districtEl,
+  subDistrictEl,
+});
+
+function syncForm() {
+  const value = address.getValue();
+  zipCodeEl.value = value.zip_code ?? "";
+  districtEl.disabled = !value.province;
+  subDistrictEl.disabled = !value.district;
+}
+
+const changeEvents = ["provinceChange", "districtChange", "subDistrictChange"];
+
+changeEvents.forEach((event) => address.addEventListener(event, syncForm));
+syncForm();
+
+function onComplete(event) {
+  console.log(event.detail);
+  // {
+  //   province: "กรุงเทพมหานคร",
+  //   district: "เขตบางรัก",
+  //   subDistrict: "สีลม",
+  //   zip_code: "10500"
+  // }
+}
+
+address.addEventListener("selectChange", onComplete);
+
+// Call when your app removes this form or leaves the page.
+function cleanupAddressForm() {
+  changeEvents.forEach((event) => {
+    address.removeEventListener(event, syncForm);
+  });
+  address.removeEventListener("selectChange", onComplete);
+  address.destroy();
+}
+```
+
+`selectChange` fires only when all three dropdowns have values. Listening to the individual change events keeps the postal code in sync when a parent selection clears the remaining fields. The example also manages `disabled` states; the library itself does not disable the dropdowns.
+
+เมื่อเปลี่ยนจังหวัดหรืออำเภอ ค่าช่องถัดไปจะถูกล้าง ให้ฟัง event รายช่องด้วยเพื่อไม่ให้รหัสไปรษณีย์เดิมค้างอยู่
+
+> In the current implementation, data is imported with the module. `loadData()` resolves immediately and does not fetch additional data.
+
+## Customization
+
+Use these options when creating an instance with the form elements above:
+
+```javascript
+const address = new ThaiAddressSelect({
+  provinceEl,
+  districtEl,
+  subDistrictEl,
+  placeholder: {
+    province: "จังหวัดที่จัดส่ง",
+    district: "เลือกอำเภอ / เขต",
+    subDistrict: "เลือกตำบล / แขวง",
+  },
+  initialValue: {
+    province: "กรุงเทพมหานคร",
+    district: "เขตบางรัก",
+    subDistrict: "สีลม",
+  },
+});
+```
+
+Read or update the address after creating an instance:
+
+```javascript
+const currentAddress = address.getValue();
+
+address.setValue({
+  province: "กรุงเทพมหานคร",
+  district: "เขตบางรัก",
+  subDistrict: "มหาพฤฒาราม",
+});
+syncForm(); // Use the helper from the quick start to update the postal code.
+
+address.setValue({}); // Reset all three fields.
+syncForm();
+```
+
+**`initialValue` and `setValue()` do not emit events.** Read `getValue()` and synchronize your UI after using them. `setValue()` replaces the selection rather than merging with existing fields.
+
+Names must match the dataset exactly, including prefixes such as **`เขตบางรัก`**, and belong to the selected parent. Use the utilities below to obtain valid names.
+
+## React / Next.js
+
+Create the instance inside `useEffect` after the elements mount. For Next.js, use a Client Component. This example cancels initialization after unmount, removes application listeners, and calls `destroy()` during cleanup.
+
+```tsx
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+export default function AddressForm() {
+  const provinceRef = useRef<HTMLSelectElement>(null);
+  const districtRef = useRef<HTMLSelectElement>(null);
+  const subDistrictRef = useRef<HTMLSelectElement>(null);
+  const [zipCode, setZipCode] = useState("");
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    let dispose = () => {};
+
+    async function init() {
+      try {
+        const { ThaiAddressSelect, loadData } =
+          await import("thai-address-select");
+        await loadData();
+        if (cancelled) return;
+
+        const provinceEl = provinceRef.current;
+        const districtEl = districtRef.current;
+        const subDistrictEl = subDistrictRef.current;
+        if (!provinceEl || !districtEl || !subDistrictEl) return;
+
+        const address = new ThaiAddressSelect({
+          provinceEl,
+          districtEl,
+          subDistrictEl,
+        });
+
+        const sync = () => {
+          const value = address.getValue();
+          setZipCode(value.zip_code ?? "");
+          districtEl.disabled = !value.province;
+          subDistrictEl.disabled = !value.district;
+        };
+        const events = [
+          "provinceChange",
+          "districtChange",
+          "subDistrictChange",
+        ];
+        events.forEach((event) => address.addEventListener(event, sync));
+
+        dispose = () => {
+          events.forEach((event) => address.removeEventListener(event, sync));
+          address.destroy();
+        };
+
+        sync();
+        setReady(true);
+      } catch {
+        if (!cancelled) {
+          setError("โหลดข้อมูลไม่สำเร็จ กรุณาโหลดหน้าใหม่");
+        }
+      }
+    }
+
+    void init();
+    return () => {
+      cancelled = true;
+      dispose();
+    };
+  }, []);
+
+  return (
+    <fieldset disabled={!ready}>
+      <legend>ที่อยู่จัดส่ง</legend>
+      <label>
+        จังหวัด <select ref={provinceRef} />
+      </label>
+      <label>
+        อำเภอ / เขต <select ref={districtRef} />
+      </label>
+      <label>
+        ตำบล / แขวง <select ref={subDistrictRef} />
+      </label>
+      <label>
+        รหัสไปรษณีย์ <input value={zipCode} readOnly />
+      </label>
+      {error && <p role="alert">{error}</p>}
+    </fieldset>
+  );
+}
+```
+
+More examples: **[React, customization, and utilities](https://www.thai-address-select-lib.taotech.site/#examples)**.
+
+## API reference
+
+### Constructor
+
+```typescript
+import {
+  ThaiAddressSelect,
+  type ThaiAddressSelectOptions,
+  type ThaiAddressValue,
+} from "thai-address-select";
+```
+
+| Option          | Type                                                             | Required | Description                                           |
+| --------------- | ---------------------------------------------------------------- | -------- | ----------------------------------------------------- |
+| `provinceEl`    | `HTMLSelectElement`                                              | Yes      | Province dropdown.                                    |
+| `districtEl`    | `HTMLSelectElement`                                              | Yes      | District dropdown.                                    |
+| `subDistrictEl` | `HTMLSelectElement`                                              | Yes      | Subdistrict dropdown.                                 |
+| `placeholder`   | `{ province?: string; district?: string; subDistrict?: string }` | No       | Override each placeholder independently.              |
+| `initialValue`  | `ThaiAddressValue`                                               | No       | Initial selection using exact names from the dataset. |
+
+Default placeholders are `เลือกจังหวัด`, `เลือกอำเภอ/เขต`, and `เลือกตำบล/แขวง`.
+
+### Methods
+
+| Method            | Description                                                                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getValue()`      | Returns `{ province, district, subDistrict, zip_code }`. Each property is a string or `undefined`. The postal code is looked up when all three address fields have values. |
+| `setValue(value)` | Replaces the current selection. Use `{}` to reset. Does not emit change events.                                                                                            |
+| `destroy()`       | Removes the library's listeners from the three select elements. Does not remove the elements or application listeners attached to the instance.                            |
+
+`ThaiAddressValue` contains the optional `province`, `district`, and `subDistrict` fields. The return type of `getValue()` adds `zip_code?: string`.
+
+### Events
+
+Listen with `address.addEventListener(name, handler)`. Payloads are available through `CustomEvent.detail`.
+
+| Event               | Trigger                                               | `detail`                                        |
+| ------------------- | ----------------------------------------------------- | ----------------------------------------------- |
+| `provinceChange`    | The user changes the province.                        | `{ province }`                                  |
+| `districtChange`    | The user changes the district.                        | `{ province, district }`                        |
+| `subDistrictChange` | The user changes the subdistrict.                     | `{ province, district, subDistrict }`           |
+| `selectChange`      | All three fields have values after a dropdown change. | `{ province, district, subDistrict, zip_code }` |
+
+### Standalone utilities
+
+Use these functions without creating dropdowns. They are exported from both `thai-address-select` and `thai-address-select/utils`.
+
+```javascript
+import {
+  loadData,
+  getProvinces,
+  getDistricts,
+  getSubDistricts,
+  getzip_code,
+  findProvinceByName,
+} from "thai-address-select/utils";
+
+await loadData();
+
+const provinces = getProvinces();
+const districts = getDistricts("กรุงเทพมหานคร");
+const subDistricts = getSubDistricts("กรุงเทพมหานคร", "เขตบางรัก");
+const zipCode = getzip_code("กรุงเทพมหานคร", "เขตบางรัก", "สีลม");
+
+console.log(zipCode); // "10500"
+console.log(findProvinceByName("เชียง")); // ["เชียงราย", "เชียงใหม่"]
+```
+
+| Function                                       | Returns               | Notes                                                                                                                                              |
+| ---------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `loadData()`                                   | `Promise<void>`       | Resolves immediately; data is already imported.                                                                                                    |
+| `getProvinces()`                               | `string[]`            | Unique province names sorted using Thai locale comparison.                                                                                         |
+| `getDistricts(province)`                       | `string[]`            | District names sorted in Thai order; `[]` if not found.                                                                                            |
+| `getSubDistricts(province, district)`          | `string[]`            | Subdistrict names sorted in Thai order; `[]` if not found.                                                                                         |
+| `getzip_code(province, district, subDistrict)` | `string \| undefined` | Postal code as a string, or `undefined` if not found. The function name uses a lowercase `z`.                                                      |
+| `findProvinceByName(query)`                    | `string[]`            | Substring search using `includes`, not fuzzy matching. `""` returns `[]`; a whitespace-only string currently matches all provinces after trimming. |
+
+See the **[online API reference](https://www.thai-address-select-lib.taotech.site/#api)** for the full walkthrough.
+
+## Bundled dataset
+
+The checked-in `src/data/thai-address.json` snapshot contains:
+
+| Level                     | Records |
+| ------------------------- | ------: |
+| Provinces / จังหวัด       |      77 |
+| Districts / อำเภอ・เขต    |     929 |
+| Subdistricts / ตำบล・แขวง |   7,451 |
+
+These are counts of records in this repository, not a guarantee of current administrative boundaries. The data is packaged with the library and does not update automatically. Check its suitability for your application before use.
+
+จำนวนข้างต้นนับจากไฟล์ข้อมูลใน repository ข้อมูลไม่ได้อัปเดตจากภายนอกอัตโนมัติ
+
+## Local development
+
+To work on the library or run the documentation website locally, use Node.js 22.12+ or 24+ for the documentation tooling:
+
+```bash
+git clone https://github.com/rratchapol/thai-address-select-lib.git
+cd thai-address-select-lib
 npm install
 npm run docs:dev
 ```
 
-Open the local URL printed by Vite. To build a static website:
+Open the local URL printed in the terminal.
 
-```bash
-npm run docs:build
-npm run docs:preview
-```
+| Command                | Output                                                       |
+| ---------------------- | ------------------------------------------------------------ |
+| `npm run build`        | Builds the library and TypeScript declarations into `dist/`. |
+| `npm run docs:dev`     | Starts the documentation development server.                 |
+| `npm run docs:build`   | Builds the static documentation website into `docs-dist/`.   |
+| `npm run docs:preview` | Previews the built documentation website locally.            |
 
-Deploy the contents of `docs-dist/` to a static host. Relative asset paths support hosting under a subdirectory. The library build remains `npm run build`, with output in `dist/`. The documentation does not change the library's public API.
+The library instance requires a browser DOM (`document`, `EventTarget`, and `CustomEvent`). For server-rendered frameworks, initialize it on the client after the form mounts. ESM imports with a bundler are the documented integration path; this README does not demonstrate CommonJS `require()`.
 
-**Source-verified notes:** the checked-in dataset contains **77 provinces, 929 districts, and 7,451 subdistrict records**. `loadData()` currently resolves immediately because JSON is imported at module load. `initialValue` and `setValue()` do not emit events. Listen to individual change events to clear an old postal code when the parent selection changes. The browser examples below that import `dist/` directly are legacy examples; use a bundler to handle JSON imports and extensionless module paths, as demonstrated in the website. The package currently declares a self-dependency, so the older “zero dependencies” claim below does not describe its package metadata.
+## Links
 
----
+- **[Live demo & documentation](https://www.thai-address-select-lib.taotech.site)**
+- [npm: thai-address-select](https://www.npmjs.com/package/thai-address-select)
+- [Source code](https://github.com/rratchapol/thai-address-select-lib)
+- [Report an issue](https://github.com/rratchapol/thai-address-select-lib/issues)
 
-<a name="english"></a>
-## English
+Maintained by [rratchapol](https://github.com/rratchapol).
 
-A lightweight TypeScript library for creating linked dropdowns for Thai address selection (Province → District → Subdistrict) with automatic postal code retrieval.
+## License
 
-### Features
-
-- 🇹🇭 **Complete Thai address database** - All provinces, districts, subdistricts, and postal codes
-- 🔗 **Auto-linked dropdowns** - Selecting province automatically filters districts, and so on
-- 📮 **Automatic postal code** - Postal code is retrieved when address is complete
-- 🎨 **Framework agnostic** - Works with Vanilla JS, React, Vue, Angular, etc.
-- 💪 **TypeScript support** - Full type definitions included
-- 📦 **Zero dependencies** - Lightweight and fast
-- 🚀 **Easy to use** - Simple API with minimal setup
-
-### Installation
-
-```bash
-npm install thai-address-select
-```
-
-### Quick Start
-
-#### Basic HTML + JavaScript
-
-```html
-<!DOCTYPE html>
-<html>
-<body>
-  <select id="province"></select>
-  <select id="district"></select>
-  <select id="subDistrict"></select>
-  <input id="zipCode" readonly>
-
-  <script type="module">
-    import { ThaiAddressSelect } from './node_modules/thai-address-select/dist/src/index.js';
-    import { loadData } from './node_modules/thai-address-select/dist/src/utils/filterAddress.js';
-
-    // 1. Load data first
-    await loadData();
-
-    // 2. Initialize
-    const thaiAddress = new ThaiAddressSelect({
-      provinceEl: document.getElementById("province"),
-      districtEl: document.getElementById("district"),
-      subDistrictEl: document.getElementById("subDistrict")
-    });
-
-    // 3. Listen for changes
-    thaiAddress.addEventListener("selectChange", (e) => {
-      document.getElementById("zipCode").value = e.detail.zip_code || "";
-      console.log(e.detail); // { province, district, subDistrict, zip_code }
-    });
-  </script>
-</body>
-</html>
-```
-
-> **Note:** Make sure to run this through a local server (e.g., `npx serve .`) because ES modules don't work with `file://` protocol.
-
-### Usage with React
-
-```tsx
-"use client";
-
-import { useEffect, useRef, useState } from 'react';
-
-export default function AddressForm() {
-  const provinceRef = useRef<HTMLSelectElement>(null);
-  const districtRef = useRef<HTMLSelectElement>(null);
-  const subDistrictRef = useRef<HTMLSelectElement>(null);
-  const [zipCode, setZipCode] = useState('');
-
-  useEffect(() => {
-    let thaiAddress: any;
-
-    const init = async () => {
-      // Dynamic import to avoid SSR issues
-      const { ThaiAddressSelect } = await import('thai-address-select');
-      const { loadData } = await import('thai-address-select');
-
-      await loadData();
-
-      if (provinceRef.current && districtRef.current && subDistrictRef.current) {
-        thaiAddress = new ThaiAddressSelect({
-          provinceEl: provinceRef.current,
-          districtEl: districtRef.current,
-          subDistrictEl: subDistrictRef.current
-        });
-
-        thaiAddress.addEventListener('selectChange', (e: any) => {
-          setZipCode(e.detail.zip_code || '');
-        });
-      }
-    };
-
-    init();
-
-    return () => thaiAddress?.destroy();
-  }, []);
-
-  return (
-    <div>
-      <select ref={provinceRef} className="w-full p-2 border rounded" />
-      <select ref={districtRef} className="w-full p-2 border rounded" />
-      <select ref={subDistrictRef} className="w-full p-2 border rounded" />
-      <input value={zipCode} readOnly className="w-full p-2 border rounded bg-gray-100" />
-    </div>
-  );
-}
-```
-
-### API Reference
-
-#### ThaiAddressSelect
-
-##### Constructor Options
-
-```typescript
-interface ThaiAddressSelectOptions {
-  provinceEl: HTMLSelectElement;      // Required: Province dropdown element
-  districtEl: HTMLSelectElement;      // Required: District dropdown element
-  subDistrictEl: HTMLSelectElement;   // Required: Subdistrict dropdown element
-  placeholder?: {                     // Optional: Custom placeholder text
-    province?: string;
-    district?: string;
-    subDistrict?: string;
-  };
-  initialValue?: {                    // Optional: Set initial values
-    province?: string;
-    district?: string;
-    subDistrict?: string;
-  };
-}
-```
-
-##### Methods
-
-**`getValue()`**  
-Returns current selected values including postal code.
-
-```javascript
-const value = thaiAddress.getValue();
-// Returns: { province?: string, district?: string, subDistrict?: string, zip_code?: string }
-```
-
-**`setValue(value)`**  
-Set values programmatically.
-
-```javascript
-thaiAddress.setValue({
-  province: "กรุงเทพมหานคร",
-  district: "เขตบางรัก",
-  subDistrict: "มหาพฤฒาราม"
-});
-```
-
-**`destroy()`**  
-Remove event listeners and clean up.
-
-```javascript
-thaiAddress.destroy();
-```
-
-##### Events
-
-**`selectChange`**  
-Fired when all dropdowns (province, district, subdistrict) have values.
-
-```javascript
-thaiAddress.addEventListener("selectChange", (e) => {
-  console.log(e.detail.province);     // "กรุงเทพมหานคร"
-  console.log(e.detail.district);     // "เขตบางรัก"
-  console.log(e.detail.subDistrict);  // "มหาพฤฒาราม"
-  console.log(e.detail.zip_code);     // "10500"
-});
-```
-
-**`provinceChange`, `districtChange`, `subDistrictChange`**  
-Fired when individual dropdown changes.
-
-```javascript
-thaiAddress.addEventListener("provinceChange", (e) => {
-  console.log(e.detail.province);
-});
-```
-
-#### Utility Functions
-
-These functions can be used independently without creating a ThaiAddressSelect instance.
-
-**`loadData()`**  
-Must be called before using any other functions.
-
-```javascript
-import { loadData } from 'thai-address-select';
-await loadData();
-```
-
-**`getProvinces()`**  
-Returns array of all province names (sorted in Thai alphabetical order).
-
-```javascript
-import { getProvinces } from 'thai-address-select';
-const provinces = getProvinces();
-// ["กระบี่", "กรุงเทพมหานคร", ...]
-```
-
-**`getDistricts(province)`**  
-Returns array of district names for a given province.
-
-```javascript
-import { getDistricts } from 'thai-address-select';
-const districts = getDistricts("กรุงเทพมหานคร");
-// ["เขตบางกอกน้อย", "เขตบางกอกใหญ่", ...]
-```
-
-**`getSubDistricts(province, district)`**  
-Returns array of subdistrict names for a given province and district.
-
-```javascript
-import { getSubDistricts } from 'thai-address-select';
-const subDistricts = getSubDistricts("กรุงเทพมหานคร", "เขตบางรัก");
-// ["มหาพฤฒาราม", "สีลม", "สุริยวงศ์", ...]
-```
-
-**`getzip_code(province, district, subDistrict)`**  
-Returns postal code for a given address.
-
-```javascript
-import { getzip_code } from 'thai-address-select';
-const zipCode = getzip_code("กรุงเทพมหานคร", "เขตบางรัก", "มหาพฤฒาราม");
-// "10500"
-```
-
-### Customization
-
-#### Custom Placeholders
-
-```javascript
-const thaiAddress = new ThaiAddressSelect({
-  provinceEl: provinceEl,
-  districtEl: districtEl,
-  subDistrictEl: subDistrictEl,
-  placeholder: {
-    province: "Select Province",
-    district: "Select District",
-    subDistrict: "Select Subdistrict"
-  }
-});
-```
-
-#### Initial Values
-
-```javascript
-const thaiAddress = new ThaiAddressSelect({
-  provinceEl: provinceEl,
-  districtEl: districtEl,
-  subDistrictEl: subDistrictEl,
-  initialValue: {
-    province: "กรุงเทพมหานคร",
-    district: "เขตบางรัก",
-    subDistrict: "มหาพฤฒาราม"
-  }
-});
-```
-
-### Data Source
-
-The library includes a complete database of Thai administrative divisions:
-- 77 Provinces
-- 928 Districts
-- 7,255 Subdistricts
-- Postal codes for all areas
-
-### Browser Support
-
-- Modern browsers with ES6+ support
-- Chrome, Firefox, Safari, Edge (latest versions)
-
-
-### Author
-
-**rratchapol**
-
-
----
-
-<a name="thai"></a>
-## ไทย
-
-ไลบรารี TypeScript น้ำหนักเบาสำหรับสร้าง dropdown เลือกที่อยู่ไทยแบบเชื่อมโยง (จังหวัด → อำเภอ → ตำบล) พร้อมดึงรหัสไปรษณีย์อัตโนมัติ
-
-### ฟีเจอร์
-
-- 🇹🇭 **ฐานข้อมูลที่อยู่ไทยครบถ้วน** - จังหวัด อำเภอ ตำบล และรหัสไปรษณีย์ทั้งหมด
-- 🔗 **Dropdown เชื่อมโยงอัตโนมัติ** - เลือกจังหวัดแล้วกรองอำเภอให้อัตโนมัติ
-- 📮 **รหัสไปรษณีย์อัตโนมัติ** - ดึงรหัสไปรษณีย์เมื่อเลือกที่อยู่ครบถ้วน
-- 🎨 **ใช้ได้กับทุก Framework** - รองรับ Vanilla JS, React, Vue, Angular ฯลฯ
-- 💪 **รองรับ TypeScript** - มี type definitions ครบถ้วน
-- 📦 **ไม่มี dependencies** - เบาและรวดเร็ว
-- 🚀 **ใช้งานง่าย** - API เรียบง่าย ติดตั้งไม่ยุ่งยาก
-
-### การติดตั้ง
-
-```bash
-npm install thai-address-select
-```
-
-### เริ่มต้นใช้งาน
-
-#### HTML + JavaScript พื้นฐาน
-
-```html
-<!DOCTYPE html>
-<html>
-<body>
-  <select id="province"></select>
-  <select id="district"></select>
-  <select id="subDistrict"></select>
-  <input id="zipCode" readonly>
-
-  <script type="module">
-    import { ThaiAddressSelect } from './node_modules/thai-address-select/dist/src/index.js';
-    import { loadData } from './node_modules/thai-address-select/dist/src/utils/filterAddress.js';
-
-    // 1. โหลดข้อมูลก่อน
-    await loadData();
-
-    // 2. สร้าง instance
-    const thaiAddress = new ThaiAddressSelect({
-      provinceEl: document.getElementById("province"),
-      districtEl: document.getElementById("district"),
-      subDistrictEl: document.getElementById("subDistrict")
-    });
-
-    // 3. รอรับการเปลี่ยนแปลง
-    thaiAddress.addEventListener("selectChange", (e) => {
-      document.getElementById("zipCode").value = e.detail.zip_code || "";
-      console.log(e.detail); // { province, district, subDistrict, zip_code }
-    });
-  </script>
-</body>
-</html>
-```
-
-> **หมายเหตุ:** ต้องรันผ่าน local server (เช่น `npx serve .`) เพราะ ES modules ใช้งานไม่ได้กับ `file://` protocol
-
-### การใช้งานกับ React
-
-```tsx
-"use client";
-
-import { useEffect, useRef, useState } from 'react';
-
-export default function AddressForm() {
-  const provinceRef = useRef<HTMLSelectElement>(null);
-  const districtRef = useRef<HTMLSelectElement>(null);
-  const subDistrictRef = useRef<HTMLSelectElement>(null);
-  const [zipCode, setZipCode] = useState('');
-
-  useEffect(() => {
-    let thaiAddress: any;
-
-    const init = async () => {
-      // Dynamic import เพื่อหลีกเลี่ยงปัญหา SSR
-      const { ThaiAddressSelect } = await import('thai-address-select');
-      const { loadData } = await import('thai-address-select');
-
-      await loadData();
-
-      if (provinceRef.current && districtRef.current && subDistrictRef.current) {
-        thaiAddress = new ThaiAddressSelect({
-          provinceEl: provinceRef.current,
-          districtEl: districtRef.current,
-          subDistrictEl: subDistrictRef.current
-        });
-
-        thaiAddress.addEventListener('selectChange', (e: any) => {
-          setZipCode(e.detail.zip_code || '');
-        });
-      }
-    };
-
-    init();
-
-    return () => thaiAddress?.destroy();
-  }, []);
-
-  return (
-    <div>
-      <select ref={provinceRef} className="w-full p-2 border rounded" />
-      <select ref={districtRef} className="w-full p-2 border rounded" />
-      <select ref={subDistrictRef} className="w-full p-2 border rounded" />
-      <input value={zipCode} readOnly className="w-full p-2 border rounded bg-gray-100" />
-    </div>
-  );
-}
-```
-
-### API Reference
-
-#### ThaiAddressSelect
-
-##### ตัวเลือก Constructor
-
-```typescript
-interface ThaiAddressSelectOptions {
-  provinceEl: HTMLSelectElement;      // จำเป็น: Element dropdown จังหวัด
-  districtEl: HTMLSelectElement;      // จำเป็น: Element dropdown อำเภอ
-  subDistrictEl: HTMLSelectElement;   // จำเป็น: Element dropdown ตำบล
-  placeholder?: {                     // ไม่จำเป็น: ข้อความ placeholder
-    province?: string;
-    district?: string;
-    subDistrict?: string;
-  };
-  initialValue?: {                    // ไม่จำเป็น: ค่าเริ่มต้น
-    province?: string;
-    district?: string;
-    subDistrict?: string;
-  };
-}
-```
-
-##### Methods
-
-**`getValue()`**  
-คืนค่าที่เลือกปัจจุบัน รวมรหัสไปรษณีย์
-
-```javascript
-const value = thaiAddress.getValue();
-// คืนค่า: { province?: string, district?: string, subDistrict?: string, zip_code?: string }
-```
-
-**`setValue(value)`**  
-ตั้งค่าผ่านโค้ด
-
-```javascript
-thaiAddress.setValue({
-  province: "กรุงเทพมหานคร",
-  district: "เขตบางรัก",
-  subDistrict: "มหาพฤฒาราม"
-});
-```
-
-**`destroy()`**  
-ลบ event listeners และทำความสะอาด
-
-```javascript
-thaiAddress.destroy();
-```
-
-##### Events
-
-**`selectChange`**  
-ทำงานเมื่อ dropdown ทั้งหมด (จังหวัด อำเภอ ตำบล) มีค่า
-
-```javascript
-thaiAddress.addEventListener("selectChange", (e) => {
-  console.log(e.detail.province);     // "กรุงเทพมหานคร"
-  console.log(e.detail.district);     // "เขตบางรัก"
-  console.log(e.detail.subDistrict);  // "มหาพฤฒาราม"
-  console.log(e.detail.zip_code);     // "10500"
-});
-```
-
-**`provinceChange`, `districtChange`, `subDistrictChange`**  
-ทำงานเมื่อ dropdown แต่ละตัวเปลี่ยนแปลง
-
-```javascript
-thaiAddress.addEventListener("provinceChange", (e) => {
-  console.log(e.detail.province);
-});
-```
-
-#### ฟังก์ชันเสริม
-
-ฟังก์ชันเหล่านี้สามารถใช้งานแยกโดยไม่ต้องสร้าง instance ของ ThaiAddressSelect
-
-**`loadData()`**  
-ต้องเรียกก่อนใช้ฟังก์ชันอื่นๆ
-
-```javascript
-import { loadData } from 'thai-address-select';
-await loadData();
-```
-
-**`getProvinces()`**  
-คืน array ชื่อจังหวัดทั้งหมด (เรียงตามตัวอักษรไทย)
-
-```javascript
-import { getProvinces } from 'thai-address-select';
-const provinces = getProvinces();
-// ["กระบี่", "กรุงเทพมหานคร", ...]
-```
-
-**`getDistricts(province)`**  
-คืน array ชื่ออำเภอของจังหวัดที่ระบุ
-
-```javascript
-import { getDistricts } from 'thai-address-select';
-const districts = getDistricts("กรุงเทพมหานคร");
-// ["เขตบางกอกน้อย", "เขตบางกอกใหญ่", ...]
-```
-
-**`getSubDistricts(province, district)`**  
-คืน array ชื่อตำบลของจังหวัดและอำเภอที่ระบุ
-
-```javascript
-import { getSubDistricts } from 'thai-address-select';
-const subDistricts = getSubDistricts("กรุงเทพมหานคร", "เขตบางรัก");
-// ["มหาพฤฒาราม", "สีลม", "สุริยวงศ์", ...]
-```
-
-**`getzip_code(province, district, subDistrict)`**  
-คืนรหัสไปรษณีย์ของที่อยู่ที่ระบุ
-
-```javascript
-import { getzip_code } from 'thai-address-select';
-const zipCode = getzip_code("กรุงเทพมหานคร", "เขตบางรัก", "มหาพฤฒาราม");
-// "10500"
-```
-
-### การปรับแต่ง
-
-#### ปรับแต่ง Placeholder
-
-```javascript
-const thaiAddress = new ThaiAddressSelect({
-  provinceEl: provinceEl,
-  districtEl: districtEl,
-  subDistrictEl: subDistrictEl,
-  placeholder: {
-    province: "เลือกจังหวัด",
-    district: "เลือกอำเภอ",
-    subDistrict: "เลือกตำบล"
-  }
-});
-```
-
-#### ตั้งค่าเริ่มต้น
-
-```javascript
-const thaiAddress = new ThaiAddressSelect({
-  provinceEl: provinceEl,
-  districtEl: districtEl,
-  subDistrictEl: subDistrictEl,
-  initialValue: {
-    province: "กรุงเทพมหานคร",
-    district: "เขตบางรัก",
-    subDistrict: "มหาพฤฒาราม"
-  }
-});
-```
-
-### ข้อมูลที่รวมอยู่
-
-ไลบรารีรวมฐานข้อมูลการแบ่งเขตการปกครองของไทยครบถ้วน:
-- 77 จังหวัด
-- 928 อำเภอ/เขต
-- 7,255 ตำบล/แขวง
-- รหัสไปรษณีย์ครบทุกพื้นที่
-
-### Browser ที่รองรับ
-
-- Browser สมัยใหม่ที่รองรับ ES6+
-- Chrome, Firefox, Safari, Edge (เวอร์ชันล่าสุด)
-
-
-
-### ผู้พัฒนา
-
-**rratchapol**
-
-git Repository
-https://github.com/rratchapol/thai-address-select-lib.git
-
-
-
-
-
-
+MIT, as declared in `package.json`.
