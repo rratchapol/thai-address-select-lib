@@ -24,6 +24,7 @@
     "build": "tsc",
     "docs:dev": "vite",
     "docs:build": "vite build",
+    "docs:check": "npm run docs:build && node scripts/verify-docs.mjs",
     "docs:preview": "vite preview",
     "clean": "rm -rf dist",
     "prepare": "npm run build"

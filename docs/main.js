@@ -77,9 +77,9 @@ function selectTab(button) {
     };
     byId("install-code").textContent = commands[button.dataset.install];
   } else {
-    byId("example-description").textContent =
-      snippets[button.dataset.example].description;
-    renderCodeCard(byId("example-code-card"), button.dataset.example);
+    document.querySelectorAll("[data-example-panel]").forEach((panel) => {
+      panel.hidden = panel.id !== button.getAttribute("aria-controls");
+    });
   }
 }
 
@@ -102,6 +102,9 @@ document.querySelectorAll('[role="tablist"]').forEach((tablist) => {
   });
 });
 selectTab(byId("tab-customize"));
+
+// Keep incoming section links aligned after code highlighting and tab setup.
+const initialSection = byId(location.hash.slice(1));
 
 let toastTimer;
 function showToast(message) {
@@ -346,4 +349,31 @@ async function initPlayground() {
   }
 }
 
-void initPlayground();
+// Readers arriving at an API anchor should not download the address database yet.
+if ("IntersectionObserver" in window) {
+  const playgroundObserver = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      playgroundObserver.disconnect();
+      void initPlayground();
+    },
+    { rootMargin: "150px" },
+  );
+  const observePlayground = () =>
+    requestAnimationFrame(() => {
+      if (initialSection?.classList.contains("doc-section")) {
+        initialSection.scrollIntoView({ behavior: "instant" });
+      }
+      playgroundObserver.observe(byId("playground"));
+    });
+  // Let the browser restore an incoming hash anchor before measuring the viewport.
+  if (document.readyState === "complete") observePlayground();
+  else window.addEventListener("load", observePlayground, { once: true });
+  if (import.meta.hot)
+    import.meta.hot.dispose(() => {
+      playgroundObserver.disconnect();
+      window.removeEventListener("load", observePlayground);
+    });
+} else {
+  void initPlayground();
+}

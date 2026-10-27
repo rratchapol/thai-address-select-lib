@@ -4,13 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#7560db" />
-    <meta
-      name="description"
-      content="คู่มือ thai-address-select ไลบรารี TypeScript สำหรับ dropdown ที่อยู่ไทย พร้อมเดโม ตัวอย่าง JavaScript และ React และ API reference จากโค้ดจริง"
+    <!-- docs:metadata -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Thai:wght@400;450;500;600;700&display=swap"
+      rel="stylesheet"
     />
-    <title>Thai Address Select — เอกสารและคู่มือใช้งาน</title>
     <link rel="icon" type="image/svg+xml" href="/docs/favicon.svg" />
     <link rel="stylesheet" href="/docs/styles.css" />
+    <noscript>
+      <style>
+        [data-example-panel][hidden] {
+          display: block !important;
+        }
+        .example-tabs,
+        .copy-button,
+        .search-button,
+        .demo-bottom {
+          display: none !important;
+        }
+        @media (max-width: 760px) {
+          .sidebar {
+            position: static;
+            transform: none;
+            width: 100%;
+            max-height: none;
+          }
+          .sidebar-bottom {
+            display: none;
+          }
+          .side-nav {
+            display: flex;
+            flex-wrap: wrap;
+          }
+          .side-nav .nav-label {
+            display: none;
+          }
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
@@ -181,16 +214,12 @@
           </div>
           <div class="hero-layout">
             <div>
-              <h1>
-                ที่อยู่ไทยครบทุกขั้น<br /><span
-                  >เชื่อมต่อได้ในไม่กี่บรรทัด</span
-                >
-              </h1>
+              <h1>thai-address-select<br /><span>Dropdown ที่อยู่ไทย</span></h1>
               <p class="hero-description">
-                ไลบรารี TypeScript สำหรับเลือกจังหวัด อำเภอ และตำบล<br
-                  class="desktop-break"
-                />แบบเชื่อมโยง พร้อมรหัสไปรษณีย์อัตโนมัติ
-                ใช้กับฟอร์มของคุณได้เลย
+                thai-address-select คือไลบรารี JavaScript/TypeScript สำหรับเลือก
+                จังหวัด → อำเภอ/เขต → ตำบล/แขวง แบบเชื่อมโยง
+                พร้อมค้นหารหัสไปรษณีย์จากข้อมูลในแพ็กเกจ ใช้กับ HTML select และ
+                React ผ่าน bundler เช่น Vite
               </p>
               <div class="hero-actions">
                 <a class="button primary" href="#quickstart"
@@ -226,6 +255,24 @@
               </div>
             </div>
           </div>
+          <p class="project-facts">
+            <span
+              >แพ็กเกจ
+              <a href="https://www.npmjs.com/package/thai-address-select"
+                ><span data-version>v1.0.6</span> บน npm ↗</a
+              ></span
+            >
+            <span
+              >ผู้ดูแล
+              <a href="https://github.com/rratchapol" rel="author"
+                >rratchapol</a
+              ></span
+            >
+            <span
+              >ตรวจเอกสารกับ source
+              <time datetime="2026-10-26">26 ต.ค. 2569</time></span
+            >
+          </p>
           <div class="feature-strip">
             <span><span class="ts-mark">TS</span>เขียนด้วย TypeScript</span
             ><span
@@ -257,7 +304,7 @@
               </h2>
               <p>เลือกจังหวัด แล้วให้ dropdown ที่เหลือทำงานต่อให้คุณ</p>
             </div>
-            <button class="text-button" id="reset-demo">
+            <button class="text-button" id="reset-demo" disabled>
               <svg class="icon"><use href="#i-reset" /></svg>เริ่มใหม่
             </button>
           </div>
@@ -299,7 +346,7 @@
               </div>
               <div class="demo-bottom">
                 <span>หรือเริ่มจากที่อยู่ตัวอย่าง</span
-                ><button id="fill-demo" class="sample-button">
+                ><button id="fill-demo" class="sample-button" disabled>
                   กรุงเทพฯ · บางรัก <span>↗</span>
                 </button>
               </div>
@@ -333,6 +380,13 @@
             แสดงค่าที่ยังไม่เลือกเป็น <code>null</code> เพื่อให้อ่านง่าย (API
             คืน <code>undefined</code>)
           </p>
+          <noscript
+            ><p class="callout">
+              เดโมโต้ตอบต้องใช้ JavaScript แต่คุณอ่านคู่มือ ตัวอย่างโค้ด และ API
+              ทั้งหมดด้านล่างได้ หรือเปิด
+              <a href="/index.md">เอกสารแบบ Markdown</a>
+            </p></noscript
+          >
           <div class="dataset-strip">
             <div>
               <strong data-stat="provinces">77</strong><span>จังหวัด</span>
@@ -359,7 +413,7 @@
           data-keywords="install npm pnpm yarn bundler vite ติดตั้ง"
         >
           <div class="section-kicker">GETTING STARTED</div>
-          <h2>เพิ่มลงในโปรเจคของคุณ</h2>
+          <h2>ติดตั้ง thai-address-select ด้วย npm</h2>
           <p>
             ติดตั้งแพ็กเกจ แล้วนำเข้าในแอปฝั่ง browser ที่ใช้ bundler เช่น Vite
           </p>
@@ -437,7 +491,7 @@
           data-keywords="quick start html javascript event selectChange loadData getValue destroy"
         >
           <div class="section-kicker">YOUR FIRST ADDRESS FORM</div>
-          <h2>จากสามช่องเลือก เป็นหนึ่งที่อยู่</h2>
+          <h2>วิธีสร้าง Dropdown ที่อยู่ไทยด้วย JavaScript</h2>
           <p>
             ตัวอย่างนี้ใช้ JavaScript ในโปรเจคที่มี bundler
             และอ่านค่าทุกครั้งที่ฟอร์มเปลี่ยน
@@ -485,7 +539,7 @@
           data-keywords="react nextjs useEffect cleanup initialValue placeholder setValue utilities findProvinceByName"
         >
           <div class="section-kicker">MAKE IT YOURS</div>
-          <h2>ปรับใช้กับฟอร์มของคุณ</h2>
+          <h2>ตัวอย่าง React, Next.js และการปรับแต่งฟอร์ม</h2>
           <p>ตั้งค่าเริ่มต้น ปรับข้อความ หรือใช้แค่ฟังก์ชันค้นหาข้อมูลก็ได้</p>
           <div
             class="example-tabs tabs"
@@ -497,7 +551,7 @@
               id="tab-customize"
               data-example="customize"
               aria-selected="true"
-              aria-controls="example-panel"
+              aria-controls="example-customize-panel"
             >
               ปรับแต่งฟอร์ม</button
             ><button
@@ -505,7 +559,7 @@
               id="tab-react"
               data-example="react"
               aria-selected="false"
-              aria-controls="example-panel"
+              aria-controls="example-react-panel"
               tabindex="-1"
             >
               React / Next.js</button
@@ -514,20 +568,13 @@
               id="tab-utilities"
               data-example="utilities"
               aria-selected="false"
-              aria-controls="example-panel"
+              aria-controls="example-utilities-panel"
               tabindex="-1"
             >
               Utility functions
             </button>
           </div>
-          <div
-            id="example-panel"
-            role="tabpanel"
-            aria-labelledby="tab-customize"
-          >
-            <p id="example-description"></p>
-            <div class="code-card" id="example-code-card"></div>
-          </div>
+          <!-- docs:examples -->
           <div class="callout subtle">
             <svg class="icon"><use href="#i-info" /></svg>
             <div>
@@ -548,7 +595,7 @@
           data-keywords="api options methods events ThaiAddressSelectOptions ThaiAddressValue getProvinces getDistricts getSubDistricts getzip_code findProvinceByName"
         >
           <div class="section-kicker">THE REFERENCE</div>
-          <h2>API ที่ใช้บ่อย อยู่ตรงนี้ครบ</h2>
+          <h2>ThaiAddressSelect API: options, methods และ events</h2>
           <p>
             ชื่อและพฤติกรรมอ้างอิงจาก source ใน repository เวอร์ชัน
             <span data-version>v1.0.5</span>
@@ -797,8 +844,48 @@
               </li>
               <li>
                 <strong>ขอบเขตของข้อมูล:</strong>
-                จำนวนบนหน้านี้นับรายการจากไฟล์จริง ต่างจากตัวเลขเดิมใน README
-                และยังไม่มีการยืนยันแหล่งข้อมูลหรือความสดใหม่จากหน่วยงานภายนอก
+                จำนวนบนหน้านี้นับรายการจากไฟล์จริงใน repository
+                ไม่ใช่ข้อมูลเขตการปกครองล่าสุดที่ยืนยันโดยหน่วยงานภายนอก
+              </li>
+            </ul>
+            <h3>แหล่งอ้างอิงของเอกสารและข้อมูล</h3>
+            <p>
+              พฤติกรรม API ตรวจจากโค้ดโดยตรง
+              คุณตรวจสอบหรือแจ้งข้อมูลที่ควรแก้ได้จากแหล่งต่อไปนี้:
+            </p>
+            <ul class="source-links">
+              <li>
+                <a href="https://www.npmjs.com/package/thai-address-select"
+                  >แพ็กเกจ thai-address-select บน npm</a
+                >
+                — เวอร์ชันที่เผยแพร่และคำสั่งติดตั้ง
+              </li>
+              <li>
+                <a
+                  href="https://github.com/rratchapol/thai-address-select-lib/blob/main/src/components/ThaiAddressSelect.ts"
+                  >ThaiAddressSelect.ts</a
+                >
+                — การเลือกที่อยู่ ค่าเริ่มต้น และ events
+              </li>
+              <li>
+                <a
+                  href="https://github.com/rratchapol/thai-address-select-lib/blob/main/src/utils/filterAddress.ts"
+                  >filterAddress.ts</a
+                >
+                — ฟังก์ชันค้นหาจังหวัด อำเภอ ตำบล และรหัสไปรษณีย์
+              </li>
+              <li>
+                <a
+                  href="https://github.com/rratchapol/thai-address-select-lib/blob/main/src/data/thai-address.json"
+                  >thai-address.json</a
+                >
+                — snapshot ที่ใช้คำนวณจำนวนรายการบนหน้านี้
+              </li>
+              <li>
+                <a
+                  href="https://github.com/rratchapol/thai-address-select-lib/issues"
+                  >แจ้งปัญหาหรือเสนอแก้ไขเอกสาร</a
+                >
               </li>
             </ul>
           </div>
@@ -811,7 +898,16 @@
           data-keywords="faq troubleshooting error zip code reset ssr commonjs ปัญหา รหัสไปรษณีย์"
         >
           <div class="section-kicker">A FEW USEFUL ANSWERS</div>
-          <h2>ติดตรงไหน ลองเริ่มจากตรงนี้</h2>
+          <h2>คำถามที่พบบ่อยเกี่ยวกับ thai-address-select</h2>
+          <details class="faq-item">
+            <summary>ต้องใช้ API ภายนอกเพื่อค้นหารหัสไปรษณีย์ไหม?</summary>
+            <p>
+              ไม่ต้องเรียก API ที่อยู่ภายนอกตอนเลือกฟอร์ม เพราะ
+              thai-address-select นำเข้าข้อมูลจังหวัด อำเภอ ตำบล
+              และรหัสไปรษณีย์จาก JSON ในแพ็กเกจ ผ่าน bundler ของแอป ข้อมูลนี้ไม่
+              sync อัตโนมัติ
+            </p>
+          </details>
           <details class="faq-item">
             <summary>เปลี่ยนจังหวัดแล้วรหัสไปรษณีย์เก่ายังแสดงอยู่?</summary>
             <p>
@@ -880,6 +976,7 @@
             ><svg class="icon"><use href="#i-pin" /></svg>thai-address-select</a
           ><span>โดย rratchapol · <span data-version>v1.0.5</span></span
           ><span>* MIT ตาม package.json · ไม่พบไฟล์ LICENSE ใน repository</span
+          ><a href="/index.md">อ่านเป็น Markdown</a
           ><a
             href="https://github.com/rratchapol/thai-address-select-lib"
             target="_blank"
