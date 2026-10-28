@@ -1,4 +1,9 @@
+import { inject } from "@vercel/analytics";
 import { snippets } from "./examples.js";
+
+if (import.meta.env.PROD) {
+  inject({ mode: "production" });
+}
 
 const byId = (id) => document.getElementById(id);
 const metadata = __DOCS_METADATA__;
